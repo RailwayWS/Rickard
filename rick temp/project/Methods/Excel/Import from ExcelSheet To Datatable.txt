@@ -1,0 +1,58 @@
+ 
+
+private void ImportDetail_Click(object sender, RoutedEventArgs e)
+ {
+
+     Mouse.OverrideCursor = Cursors.Wait;
+
+     dtDetail.Clear();
+
+
+
+     if (File.Exists(@"C:\RickTemp\BudDetailImp.xlsx"))
+     {
+         Mouse.OverrideCursor = Cursors.Wait;
+         Microsoft.Office.Interop.Excel.Application XLApp = new Microsoft.Office.Interop.Excel.Application();
+         Workbook XLWB = XLApp.Workbooks.Open(@"C:\RickTemp\BudDetailImp.xlsx");
+         Worksheet XLWS = null;
+         XLWS = XLWB.ActiveSheet;
+         
+         // Find the last real row
+        int lastUsedRow = XLWS.Cells.Find("*", System.Reflection.Missing.Value,
+                                        System.Reflection.Missing.Value, System.Reflection.Missing.Value,
+                                        Microsoft.Office.Interop.Excel.XlSearchOrder.xlByRows, Microsoft.Office.Interop.Excel.XlSearchDirection.xlPrevious,
+                                        false, System.Reflection.Missing.Value, System.Reflection.Missing.Value).Row;
+
+         int rowindex;
+
+
+
+         for (rowindex = 2; rowindex <= lastUsedRow; rowindex++)
+         {
+
+             DataRow nr = dtDetail.NewRow();
+
+             nr["Year"] = Convert.ToString(((Microsoft.Office.Interop.Excel.Range)XLWS.Cells[rowindex, 1]).Value2);
+             nr["Code"] = Convert.ToString(((Microsoft.Office.Interop.Excel.Range)XLWS.Cells[rowindex, 2]).Value2);
+             nr["Period"] = Convert.ToString(((Microsoft.Office.Interop.Excel.Range)XLWS.Cells[rowindex, 3]).Value2);
+             nr["Description"] = Convert.ToString(((Microsoft.Office.Interop.Excel.Range)XLWS.Cells[rowindex, 4]).Value2);
+             nr["Group"] = Convert.ToString(((Microsoft.Office.Interop.Excel.Range)XLWS.Cells[rowindex, 5]).Value2);
+             nr["Value"] = Convert.ToDecimal(((Microsoft.Office.Interop.Excel.Range)XLWS.Cells[rowindex, 6]).Value2);
+
+
+             dtDetail.Rows.Add(nr);
+
+
+         }
+         XLWB.Close();
+
+         vmhist.dtDetailBudget = dtDetail;
+
+         btUpdateDet.IsEnabled = true;
+
+         Mouse.OverrideCursor = Cursors.Arrow;
+     }
+
+     Mouse.OverrideCursor = Cursors.Arrow;
+
+ }

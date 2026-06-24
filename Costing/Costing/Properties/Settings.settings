@@ -1,0 +1,18 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Costing.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="CostingServer" Type="System.String" Scope="User">
+      <Value Profile="(Default)">GPARISZENBOOK\SQLGP</Value>
+    </Setting>
+    <Setting Name="CostingDB" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Costing</Value>
+    </Setting>
+    <Setting Name="SysproDB" Type="System.String" Scope="User">
+      <Value Profile="(Default)">SysproCompanyR</Value>
+    </Setting>
+    <Setting Name="SysproServer" Type="System.String" Scope="User">
+      <Value Profile="(Default)">RA-ERP</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

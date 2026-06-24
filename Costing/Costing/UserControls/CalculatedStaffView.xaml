@@ -1,0 +1,75 @@
+﻿<UserControl x:Class="Costing.UserControls.CalculatedStaffView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:Costing.Viewmodels"
+             mc:Ignorable="d" 
+             d:DesignHeight="700" d:DesignWidth="1200"
+             Background="White">
+
+    <UserControl.DataContext>
+        <vm:CalculatedStaffViewModel/>
+    </UserControl.DataContext>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
+            <TextBlock Text="Calculated Data" FontSize="24" FontWeight="SemiBold" Foreground="#1E293B" VerticalAlignment="Center"/>
+
+            <Button Content="Run Calculations" Click="btnRunCalculations_Click" Margin="20,0,0,0" Width="150" Height="35" 
+                    Background="#3B82F6" Foreground="White" BorderThickness="0" Cursor="Hand" ForceCursor="True"/>
+
+            <Button Content="Save to Database" Click="btnSaveToDb_Click" Margin="20,0,0,0" Width="150" Height="35" 
+                    Background="#10B981" Foreground="White" BorderThickness="0" Cursor="Hand" ForceCursor="True"/>
+        </StackPanel>
+
+        <StackPanel x:Name="pnlProgress" Grid.Row="1" Visibility="Collapsed" Margin="0,0,0,20">
+            <TextBlock x:Name="txtProgress" Text="Calculating: 0%" Foreground="#94A3B8" FontWeight="SemiBold" Margin="0,0,0,5"/>
+
+            <ProgressBar x:Name="pbCalculations" Height="10" Minimum="0" Maximum="100" Value="0" 
+                         Foreground="#10B981" Background="WhiteSmoke" BorderThickness="0">
+                <ProgressBar.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </ProgressBar.Resources>
+            </ProgressBar>
+        </StackPanel>
+
+        <DataGrid x:Name="CalculatedDataGrid"
+                  Grid.Row="2" 
+                  ItemsSource="{Binding OCCalculatedStaff}" 
+                  AutoGenerateColumns="False" 
+                  CanUserAddRows="False" 
+                  CanUserDeleteRows="False"
+                  IsReadOnly="True"
+                  HeadersVisibility="Column"
+                  GridLinesVisibility="Horizontal"
+                  BorderBrush="#E2E8F0"
+                  HorizontalGridLinesBrush="#E2E8F0"
+                  Background="White"
+                  RowBackground="White"
+                  AlternatingRowBackground="#F8FAFC">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Code" Binding="{Binding Code}" Width="60" FontWeight="SemiBold"/>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="150" />
+                <DataGridTextColumn Header="Work Centre" Binding="{Binding WorkCentre}" Width="120" />
+
+                <DataGridTextColumn Header="Rate/Hr" Binding="{Binding RatePerHour, StringFormat={}{0:N2}}" Width="70" Foreground="#2563EB"/>
+                <DataGridTextColumn Header="Alloc." Binding="{Binding Allocation, StringFormat={}{0:N2}}" Width="60" Foreground="#2563EB"/>
+                <DataGridTextColumn Header="Eff." Binding="{Binding Efficiency, StringFormat={}{0:N2}}" Width="50" Foreground="#2563EB"/>
+                <DataGridTextColumn Header="Rate" Binding="{Binding Rate, StringFormat={}{0:N2}}" Width="80"/>
+
+                <DataGridTextColumn Header="TOTAL" Binding="{Binding Total, StringFormat={}{0:N2}}" Width="110" FontWeight="Bold" Foreground="#059669"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+    </Grid>
+</UserControl>

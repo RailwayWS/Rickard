@@ -1,0 +1,35 @@
+   using ClosedXML.Excel;
+
+
+
+
+public void ExportExcel(DataTable dt, string name)
+     {
+         string[] namesplit = name.Split('/');
+
+         if (namesplit.Length == 1)
+         {
+             wbname = name;
+         }
+         else
+         {
+             wbname = namesplit[0] + namesplit[1] + namesplit[2];
+                 }
+
+         using (var workbook = new XLWorkbook())
+         {
+             var worksheet = workbook.Worksheets.Add(wbname);
+             // Import the DataTable data starting from cell A1 with headers
+             worksheet.Cell("A1").InsertTable(dt, wbname, true);
+             worksheet.Columns().AdjustToContents(); // Autofit columns
+                         
+             workbook.SaveAs(@"C:\RickTemp\"+wbname + ".xlsx"); // Save the file
+
+             string filePath = @"C:\RickTemp\" + wbname + ".xlsx";
+             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+             {
+                 FileName = filePath,
+                 UseShellExecute = true
+             });
+}
+}
