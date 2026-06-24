@@ -59,6 +59,7 @@
                HorizontalAlignment="Center" Margin="0,40,0,30"/>
 
                     <StackPanel Grid.Row="1">
+                        <Button x:Name="btAllocations" Content="Allocations" Click="btAllocations_Click" Style="{StaticResource NavButton}"/>
                         <Button x:Name="btStaffCosts" Content="Staff Costs" Click="btStaffCosts_Click" Style="{StaticResource NavButton}"/>
                         <Button x:Name="btStaff" Content="Staff Management" Click="btStaff_Click" Style="{StaticResource NavButton}"/>
                         <Button x:Name="btSettings" Content="Settings" Style="{StaticResource NavButton}"/>

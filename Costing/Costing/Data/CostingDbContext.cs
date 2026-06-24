@@ -18,6 +18,8 @@ namespace Costing.Data
 
         public DbSet<CalculatedStaffCost> CalculatedStaffCosts { get; set; }
 
+        public DbSet<Allocation> Allocations { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(

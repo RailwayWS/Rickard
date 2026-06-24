@@ -1,13 +1,14 @@
-﻿using System;
+﻿using Costing.Helpers;
+using Costing.Models;
+using Costing.Other;
+using Costing.SQLClasses;
+using Costing.Viewmodels;
+using Costing.Windows;
+using System;
 using System.Collections.ObjectModel;
 using System.Data;
 using System.Windows;
 using System.Windows.Input;
-using Costing.SQLClasses;
-using Costing.Other;
-using Costing.Models;
-using Costing.Viewmodels;
-using Costing.Windows;
 
 
 namespace Costing.UserControls
@@ -79,6 +80,7 @@ namespace Costing.UserControls
                             UserName = dr["UserName"].ToString(),
                             Password = dr["Password"].ToString(),
                             Email = dr["Email"].ToString(),
+                            Role = dr["Role"].ToString()
 
                         });
                     }
@@ -106,10 +108,7 @@ namespace Costing.UserControls
         #region Login Method
         private void btOK_Click(object sender, RoutedEventArgs e)
         {
-
             Mouse.OverrideCursor = Cursors.Wait;
-
-
 
             if (cmbUsers.SelectedItem != null)
             {
@@ -118,17 +117,12 @@ namespace Costing.UserControls
 
                 if (txtPassword.Password == lgUser.Password)
                 {
+                    AppSession.CurrentUser = lgUser;
 
                     //load main window
                     MainWindow main = new MainWindow();
                     this.Close();
                     main.Show();
-                    
-
-
-
-
-
                 }
 
 
@@ -138,19 +132,10 @@ namespace Costing.UserControls
                 Message msg = new Message("Incorrect Password");
                 msg.ShowDialog();
                 txtPassword.Focus();
-
             }
 
             Mouse.OverrideCursor = Cursors.Arrow;
         }
-          
-
-
-           
-
-          
-
-        
         #endregion
        
     }

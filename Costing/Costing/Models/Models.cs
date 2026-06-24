@@ -10,16 +10,21 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Costing.Models
 {
-
+    [Table("LoginUsers", Schema = "dbo")]
     public class LoginUser
     {
-
+        [Key]
+        [Column("UserName")]
         public string UserName { get; set; }
-        public string Password { get; set; }
-        public string Email { get; set; }
-        //public string SysproUser { get; set; }
-        //public string SysproPassword { get; set; }
 
+        [Column("Password")]
+        public string Password { get; set; }
+
+        [Column("Email")]
+        public string Email { get; set; }
+
+        [Column("UserName")]
+        public string Role { get; set; }
 
     }
 

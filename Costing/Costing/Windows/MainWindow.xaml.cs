@@ -1,4 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Costing.Helpers;
+using Costing.UserControls;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,7 +12,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml.Serialization;
-using Costing.UserControls;
 
 namespace Costing.Windows
 {
@@ -22,6 +23,7 @@ namespace Costing.Windows
         public MainWindow()
         {
             InitializeComponent();
+            ApplyRoleSecurity();
         }
 
         private void btStaffCosts_Click(object sender, RoutedEventArgs e)
@@ -53,6 +55,39 @@ namespace Costing.Windows
         {
             Mouse.OverrideCursor = Cursors.Hand;
             Application.Current.Shutdown();
+        }
+
+        private void ApplyRoleSecurity()
+        {
+            // if somehow no session exists, boot them out or default to locked down
+            if (AppSession.CurrentUser == null)
+            {
+                MessageBox.Show("No active user session found. Closing application.", "Security Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                this.Close();
+                return;
+            }
+
+            if (!AppSession.IsAdmin)
+            {
+                // BASIC USER
+                btStaffCosts.Visibility = Visibility.Collapsed;
+                btStaff.Visibility = Visibility.Collapsed;
+                btSettings.Visibility = Visibility.Collapsed;
+
+                // TODO: Load the allocations view immediately
+            }
+            else
+            {
+                // ADMIN
+                btStaffCosts.Visibility = Visibility.Visible;
+                btStaff.Visibility = Visibility.Visible;
+                btSettings.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void btAllocations_Click(object sender, RoutedEventArgs e)
+        {
+            //todo
         }
     }
 }
