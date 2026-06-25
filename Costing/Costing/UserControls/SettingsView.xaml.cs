@@ -40,8 +40,9 @@ namespace Costing.UserControls
                 vmSettings.SysproServer = Costing.Properties.Settings.Default.SysproServer;
                 vmSettings.SysproDB = Costing.Properties.Settings.Default.SysproDB;
 
-                // Pulls path variable mapping securely
-                vmSettings.DefaultImportPath = Costing.Properties.Settings.Default.DefaultImportPath;
+                // Pulls path variables mapping securely
+                vmSettings.ImportPathWages = Costing.Properties.Settings.Default.ImportPathWages;
+                vmSettings.ImportPathCosting = Costing.Properties.Settings.Default.ImportPathCosting;
             }
             catch (Exception ex)
             {
@@ -50,7 +51,7 @@ namespace Costing.UserControls
             }
             finally
             {
-                Mouse.OverrideCursor = null;
+                Mouse.OverrideCursor = Cursors.Arrow;
             }
         }
 
@@ -69,7 +70,21 @@ namespace Costing.UserControls
 
             if (dialog.ShowDialog() == true)
             {
-                vmSettings.DefaultImportPath = dialog.FileName;
+                vmSettings.ImportPathWages = dialog.FileName;
+            }
+        }
+
+        private void btnBrowseCostingPath_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Excel Worksheets (*.xlsx)|*.xlsx",
+                Title = "Select Default Costing Sheet Reference Source"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                vmSettings.ImportPathCosting = dialog.FileName;
             }
         }
 
@@ -81,14 +96,13 @@ namespace Costing.UserControls
         {
             if (vmSettings == null) return;
 
-            Mouse.OverrideCursor = Cursors.Wait;
-
             try
             {
                 // Write the local UI state values directly back to application configuration context
                 Costing.Properties.Settings.Default.SysproServer = vmSettings.SysproServer;
                 Costing.Properties.Settings.Default.SysproDB = vmSettings.SysproDB;
-                Costing.Properties.Settings.Default.DefaultImportPath = vmSettings.DefaultImportPath;
+                Costing.Properties.Settings.Default.ImportPathWages = vmSettings.ImportPathWages;
+                Costing.Properties.Settings.Default.ImportPathCosting = vmSettings.ImportPathCosting;
 
                 // Commit variables into localized permanent machine runtime state storage
                 Costing.Properties.Settings.Default.Save();
@@ -100,10 +114,6 @@ namespace Costing.UserControls
             {
                 Message errmess = new Message($"Configuration commit execution aborted: \n{ex.Message}");
                 errmess.ShowDialog();
-            }
-            finally
-            {
-                Mouse.OverrideCursor = null;
             }
         }
 

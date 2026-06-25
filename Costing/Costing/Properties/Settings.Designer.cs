@@ -73,13 +73,25 @@ namespace Costing.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\jmostert\\Desktop\\rick temp\\project\\Wages.xlsx")]
-        public string DefaultImportPath {
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ImportPathWages {
             get {
-                return ((string)(this["DefaultImportPath"]));
+                return ((string)(this["ImportPathWages"]));
             }
             set {
-                this["DefaultImportPath"] = value;
+                this["ImportPathWages"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ImportPathCosting {
+            get {
+                return ((string)(this["ImportPathCosting"]));
+            }
+            set {
+                this["ImportPathCosting"] = value;
             }
         }
     }

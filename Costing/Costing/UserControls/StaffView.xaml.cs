@@ -25,10 +25,19 @@ namespace Costing.UserControls
             // cast DataContect into Viewmodel to gain access to OC
             var vm = this.DataContext as StaffViewModel;
 
-            string filePath = @"C:\Users\jmostert\Desktop\rick temp\project\Wages.xlsx";
+            string filePath = Costing.Properties.Settings.Default.ImportPathWages;
+
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                MessageBox.Show("No default import path found. Please configure your Default Import Path in the Settings tab first.",
+                                "Settings Required", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
             if (!File.Exists(filePath))
             {
-                MessageBox.Show($"Could not find the file at:\n{filePath}", "File Not Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show($"Could not find the file at:\n{filePath}\n\nPlease check your Settings tab.",
+                                "File Not Found", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 

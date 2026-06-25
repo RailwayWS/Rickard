@@ -23,10 +23,19 @@ namespace Costing.UserControls
             var vm = this.DataContext as CalculatedStaffViewModel;
             if (vm == null) return;
 
-            string filePath = @"C:\Users\jmostert\Desktop\Costing/CostingSheet.xlsx";
+            string filePath = Costing.Properties.Settings.Default.ImportPathCosting;
+
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                MessageBox.Show("No default Costing Sheet path found. Please configure it in the Settings tab first.",
+                                "Settings Required", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
             if (!File.Exists(filePath))
             {
-                MessageBox.Show($"Could not find the Excel file at:\n{filePath}", "File Not Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show($"Could not find the Excel file at:\n{filePath}",
+                                "File Not Found", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 

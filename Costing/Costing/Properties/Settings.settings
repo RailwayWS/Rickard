@@ -14,8 +14,11 @@
     <Setting Name="CostingServer" Type="System.String" Scope="User">
       <Value Profile="(Default)">RA-ERP</Value>
     </Setting>
-    <Setting Name="DefaultImportPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\Users\jmostert\Desktop\rick temp\project\Wages.xlsx</Value>
+    <Setting Name="ImportPathWages" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="ImportPathCosting" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
   </Settings>
 </SettingsFile>

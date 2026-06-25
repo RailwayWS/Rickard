@@ -18,11 +18,18 @@ namespace Costing.Viewmodels
             set { _sysproDB = value; OnPropertyChanged(nameof(SysproDB)); }
         }
 
-        private string _defaultImportPath;
-        public string DefaultImportPath
+        private string _importPathWages;
+        public string ImportPathWages
         {
-            get { return _defaultImportPath; }
-            set { _defaultImportPath = value; OnPropertyChanged(nameof(DefaultImportPath)); }
+            get { return _importPathWages; }
+            set { _importPathWages = value; OnPropertyChanged(nameof(ImportPathWages)); }
+        }
+
+        private string _importPathCosting;
+        public string ImportPathCosting
+        {
+            get { return _importPathCosting; }
+            set { _importPathCosting = value; OnPropertyChanged(nameof(ImportPathCosting)); }
         }
     }
 }
