@@ -31,7 +31,9 @@ namespace Costing.Helpers
                 // Find people in the DB who are no longer in the Excel sheet
                 var excelCodes = staffList.Select(e => e.Code).ToList();
 
-                var employeesToDelete = db.Staff.Where(dbEmp => !excelCodes.Contains(dbEmp.Code)).ToList();
+                var allDbStaff = db.Staff.ToList();
+
+                var employeesToDelete = allDbStaff.Where(dbEmp => !excelCodes.Contains(dbEmp.Code)).ToList();
 
                 foreach (var oldEmp in employeesToDelete)
                 {
