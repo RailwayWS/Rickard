@@ -12,7 +12,7 @@ namespace Costing.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.14.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "18.7.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -20,18 +20,6 @@ namespace Costing.Properties {
         public static Settings Default {
             get {
                 return defaultInstance;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("GPARISZENBOOK\\SQLGP")]
-        public string CostingServer {
-            get {
-                return ((string)(this["CostingServer"]));
-            }
-            set {
-                this["CostingServer"] = value;
             }
         }
         
@@ -68,6 +56,30 @@ namespace Costing.Properties {
             }
             set {
                 this["SysproServer"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("RA-ERP")]
+        public string CostingServer {
+            get {
+                return ((string)(this["CostingServer"]));
+            }
+            set {
+                this["CostingServer"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\jmostert\\Desktop\\rick temp\\project\\Wages.xlsx")]
+        public string DefaultImportPath {
+            get {
+                return ((string)(this["DefaultImportPath"]));
+            }
+            set {
+                this["DefaultImportPath"] = value;
             }
         }
     }

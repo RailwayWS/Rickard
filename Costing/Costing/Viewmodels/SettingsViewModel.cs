@@ -1,16 +1,28 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Costing.Viewmodels
 {
     public class SettingsViewModel : ViewModelBase
     {
-        public SettingsViewModel()
+        private string _sysproServer;
+        public string SysproServer
         {
-            //TODO
+            get { return _sysproServer; }
+            set { _sysproServer = value; OnPropertyChanged(nameof(SysproServer)); }
+        }
+
+        private string _sysproDB;
+        public string SysproDB
+        {
+            get { return _sysproDB; }
+            set { _sysproDB = value; OnPropertyChanged(nameof(SysproDB)); }
+        }
+
+        private string _defaultImportPath;
+        public string DefaultImportPath
+        {
+            get { return _defaultImportPath; }
+            set { _defaultImportPath = value; OnPropertyChanged(nameof(DefaultImportPath)); }
         }
     }
 }
