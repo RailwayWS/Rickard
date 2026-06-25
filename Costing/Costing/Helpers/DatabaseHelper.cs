@@ -1,11 +1,8 @@
 ﻿using Costing.Data;
 using Costing.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace Costing.Helpers
 {
@@ -162,6 +159,95 @@ namespace Costing.Helpers
                 }
 
                 db.SaveChanges();
+            }
+        }
+
+        public static void GetSysproData()
+        {
+            var newCostCentres = new List<CostCentre>();
+            var newWorkCentres = new List<WorkCentre>();
+
+            string sysproConnStr = $"Server={Costing.Properties.Settings.Default.SysproServer};Database={Costing.Properties.Settings.Default.SysproDB};Trusted_Connection=True;TrustServerCertificate=True;";
+
+            using (SqlConnection con = new SqlConnection(sysproConnStr))
+            {
+                con.Open();
+
+                // Grab Cost Centres
+                using (SqlCommand cmd = new SqlCommand("SELECT CostCentre, Description FROM dbo.BomCostCentre", con))
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        newCostCentres.Add(new CostCentre
+                        {
+                            CcCode = reader["CostCentre"]?.ToString().Trim(),
+                            CcDescription = reader["Description"]?.ToString().Trim()
+                        });
+                    }
+                }
+
+                // Grab Work Centres
+                using (SqlCommand cmd = new SqlCommand("SELECT WorkCentre, Description, CostCentre FROM dbo.BomWorkCentre", con))
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        newWorkCentres.Add(new WorkCentre
+                        {
+                            WcCode = reader["WorkCentre"]?.ToString().Trim(),
+                            WcDescription = reader["Description"]?.ToString().Trim(),
+                            CcCode = reader["CostCentre"]?.ToString().Trim(),
+                            Type = "",
+                            Staff = ""
+                        });
+                    }
+                }
+            }
+
+            // SAVE TO LOCAL DB
+            using (var context = new CostingDbContext())
+            {
+                // Pull what is currently in our local database
+                var existingCostCentres = context.CostCentres.ToList();
+                var existingWorkCentres = context.WorkCentres.ToList();
+
+                // UPSERT COST CENTRES
+                foreach (var newCc in newCostCentres)
+                {
+                    var match = existingCostCentres.FirstOrDefault(c => c.CcCode == newCc.CcCode);
+                    if (match != null)
+                    {
+                        // Update existing
+                        match.CcDescription = newCc.CcDescription;
+                    }
+                    else
+                    {
+                        // Insert new
+                        context.CostCentres.Add(newCc);
+                    }
+                }
+
+                // Save parents so they exist before we process children
+                context.SaveChanges();
+
+                // UPSERT WORK CENTRES
+                foreach (var newWc in newWorkCentres)
+                {
+                    var match = existingWorkCentres.FirstOrDefault(w => w.WcCode == newWc.WcCode);
+                    if (match != null)
+                    {
+                        // Update existing
+                        match.WcDescription = newWc.WcDescription;
+                        match.CcCode = newWc.CcCode;
+                    }
+                    else
+                    {
+                        // Insert new
+                        context.WorkCentres.Add(newWc);
+                    }
+                }
+                context.SaveChanges();
             }
         }
     }

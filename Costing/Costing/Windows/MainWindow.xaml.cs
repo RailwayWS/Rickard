@@ -87,7 +87,7 @@ namespace Costing.Windows
 
         private void btAllocations_Click(object sender, RoutedEventArgs e)
         {
-            //todo
+            MainFrame.Content = new UserControls.AllocationsView();
         }
     }
 }

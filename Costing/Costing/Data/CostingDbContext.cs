@@ -20,6 +20,10 @@ namespace Costing.Data
 
         public DbSet<Allocation> Allocations { get; set; }
 
+        public DbSet<CostCentre> CostCentres { get; set; }
+
+        public DbSet<WorkCentre> WorkCentres { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(
