@@ -10,7 +10,6 @@ namespace Costing.Helpers
     {
         public static void SaveStaffToDatabase(IEnumerable<BasicEmployee> staffList)
         {
-            // using opens and closes the db connection
             using (var db = new CostingDbContext()) 
             {
                 foreach (var emp in staffList) {
@@ -29,7 +28,24 @@ namespace Costing.Helpers
                     else { db.Staff.Add(emp); }
                 }
 
-                // add all changes at once
+                // Find people in the DB who are no longer in the Excel sheet
+                var excelCodes = staffList.Select(e => e.Code).ToList();
+
+                var employeesToDelete = db.Staff.Where(dbEmp => !excelCodes.Contains(dbEmp.Code)).ToList();
+
+                foreach (var oldEmp in employeesToDelete)
+                {
+                    // delete Allocation
+                    var orphanedAllocation = db.Allocations.FirstOrDefault(a => a.Code == oldEmp.Code);
+                    if (orphanedAllocation != null)
+                    {
+                        db.Allocations.Remove(orphanedAllocation);
+                    }
+
+                    //delete the employee
+                    db.Staff.Remove(oldEmp);
+                }
+
                 db.SaveChanges();
             }
         }
