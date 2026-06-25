@@ -89,5 +89,10 @@ namespace Costing.Windows
         {
             MainFrame.Content = new UserControls.AllocationsView();
         }
+
+        private void btSettings_Click(object sender, RoutedEventArgs e)
+        {
+            MainFrame.Content = new Costing.UserControls.SettingsView();
+        }
     }
 }

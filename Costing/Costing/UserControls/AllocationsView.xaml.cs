@@ -1,8 +1,11 @@
 ﻿using Costing.Data;
 using Costing.Helpers;
 using Costing.Models;
+using Costing.Other; // To access your custom Message class
 using Costing.Viewmodels;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -11,52 +14,90 @@ namespace Costing.UserControls
 {
     public partial class AllocationsView : UserControl
     {
-        private AllocationsViewModel _viewModel;
+        #region Controls
+        
+        AllocationsViewModel vmAllocations = new AllocationsViewModel();
+        
+        #endregion
 
         public AllocationsView()
         {
             InitializeComponent();
-            _viewModel = new AllocationsViewModel();
-            this.DataContext = _viewModel;
-            this.Loaded += UserControl_Loaded;
+            
+            this.Loaded += Allocations_Loaded;
+            DataContext = vmAllocations;
         }
 
-        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        private void Allocations_Loaded(object sender, RoutedEventArgs e)
+        {
+            GetAllocationsData();
+        }
+
+        #region Get Data Methods
+        
+        private void GetAllocationsData()
         {
             Mouse.OverrideCursor = Cursors.Wait;
 
             try
             {
                 DatabaseHelper.GetSysproData();
-                _viewModel.LoadData();
+
+                using (var context = new CostingDbContext())
+                {
+                    // Load the dropdown options
+                    var workCentres = context.WorkCentres.OrderBy(w => w.WcDescription).ToList();
+                    vmAllocations.OCWorkCentres = new System.Collections.ObjectModel.ObservableCollection<WorkCentre>(workCentres);
+
+                    // Load lists from the database
+                    var allEmployees = context.Staff.ToList();
+                    var existingAllocations = context.Allocations.ToList();
+
+                    var displayList = new List<Allocation>();
+
+                    foreach (var emp in allEmployees)
+                    {
+                        var savedAlloc = existingAllocations.FirstOrDefault(a => a.Code == emp.Code);
+
+                        if (savedAlloc != null)
+                        {
+                            displayList.Add(savedAlloc);
+                        }
+                        else
+                        {
+                            displayList.Add(new Allocation
+                            {
+                                Code = emp.Code,
+                                Name = emp.Name
+                            });
+                        }
+                    }
+
+                    // Bind it to the grid
+                    vmAllocations.OCAllocations = new System.Collections.ObjectModel.ObservableCollection<Allocation>(displayList.OrderBy(a => a.Name));
+                }
             }
             catch (Exception ex)
             {
                 string errorMessage = ex.Message;
                 if (ex.InnerException != null) errorMessage += "\n\nDetails: " + ex.InnerException.Message;
 
-                MessageBox.Show("Error loading data: \n" + errorMessage, "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Message errmess = new Message($"Error loading data: \n{errorMessage}");
+                errmess.ShowDialog();
             }
             finally
             {
                 Mouse.OverrideCursor = null;
             }
         }
+        
+        #endregion
 
-        private void WorkCentre_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            // If a Work Centre is chosen update the Cost Centre
-            if (sender is ComboBox comboBox &&
-                comboBox.SelectedItem is Costing.Models.WorkCentre selectedWc &&
-                comboBox.DataContext is Costing.Models.Allocation currentRow)
-            {
-                currentRow.CostCentre = selectedWc.CcCode;
-            }
-        }
-
+        #region Save Method
+        
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel == null || _viewModel.OCAllocations == null) return;
+            if (vmAllocations == null || vmAllocations.OCAllocations == null) return;
 
             Mouse.OverrideCursor = Cursors.Wait;
 
@@ -66,25 +107,21 @@ namespace Costing.UserControls
                 {
                     var allWorkCentres = context.WorkCentres.ToList();
 
-                    foreach (var uiAllocation in _viewModel.OCAllocations)
+                    foreach (var uiAllocation in vmAllocations.OCAllocations)
                     {
-                        // Skip people who haven't been assigned a work centre yet
                         if (string.IsNullOrEmpty(uiAllocation.WorkCentre)) continue;
 
                         var dbRecord = context.Allocations.FirstOrDefault(a => a.Code == uiAllocation.Code);
-
                         var matchingWC = allWorkCentres.FirstOrDefault(w => w.WcCode == uiAllocation.WorkCentre);
                         string newCostCentre = matchingWC != null ? matchingWC.CcCode : null;
 
                         if (dbRecord != null)
                         {
-                            // UPDATE
                             dbRecord.WorkCentre = uiAllocation.WorkCentre;
                             dbRecord.CostCentre = newCostCentre;
                         }
                         else
                         {
-                            // INSERT
                             context.Allocations.Add(new Allocation
                             {
                                 Code = uiAllocation.Code,
@@ -95,23 +132,29 @@ namespace Costing.UserControls
                         }
                     }
 
-                    // Save everything at once
                     context.SaveChanges();
                 }
-                _viewModel.LoadData();
-                MessageBox.Show("All employee allocations have been successfully saved!", "Save Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                
+                // Refresh the data instead of complex UI binding
+                GetAllocationsData();
+                
+                Message msg = new Message("All employee allocations have been successfully saved!");
+                msg.ShowDialog();
             }
             catch (Exception ex)
             {
                 string errorMessage = ex.Message;
                 if (ex.InnerException != null) errorMessage += "\n\n" + ex.InnerException.Message;
 
-                MessageBox.Show("Error saving allocations: \n" + errorMessage, "Save Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Message errmess = new Message($"Error saving allocations: \n{errorMessage}");
+                errmess.ShowDialog();
             }
             finally
             {
                 Mouse.OverrideCursor = null;
             }
         }
+        
+        #endregion
     }
 }

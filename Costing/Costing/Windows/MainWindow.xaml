@@ -62,7 +62,7 @@
                         <Button x:Name="btAllocations" Content="Allocations" Click="btAllocations_Click" Style="{StaticResource NavButton}"/>
                         <Button x:Name="btStaffCosts" Content="Staff Costs" Click="btStaffCosts_Click" Style="{StaticResource NavButton}"/>
                         <Button x:Name="btStaff" Content="Staff Management" Click="btStaff_Click" Style="{StaticResource NavButton}"/>
-                        <Button x:Name="btSettings" Content="Settings" Style="{StaticResource NavButton}"/>
+                        <Button x:Name="btSettings" Content="Settings" Click="btSettings_Click" Style="{StaticResource NavButton}"/>
                     </StackPanel>
 
                     <Button Grid.Row="2" x:Name="btLogout" Content="Logout" Click="btLogout_Click" 

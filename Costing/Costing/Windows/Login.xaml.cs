@@ -13,9 +13,6 @@ using System.Windows.Input;
 
 namespace Costing.UserControls
 {
-    /// <summary>
-    /// Interaction logic for Login.xaml
-    /// </summary>
     public partial class Login : Window
     {
         #region Controls
