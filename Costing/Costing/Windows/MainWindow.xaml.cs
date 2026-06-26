@@ -94,5 +94,10 @@ namespace Costing.Windows
         {
             MainFrame.Content = new Costing.UserControls.SettingsView();
         }
+
+        public void ShowSettingsView()
+        {
+            this.MainFrame.Content = new Costing.UserControls.SettingsView();
+        }
     }
 }

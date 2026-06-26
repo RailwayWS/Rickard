@@ -56,10 +56,6 @@ namespace Costing.UserControls
                 Mouse.OverrideCursor = Cursors.Wait;
                 try
                 {
-                    vmSettings.SysproServer = Costing.Properties.Settings.Default.SysproServer;
-                    vmSettings.SysproDB = Costing.Properties.Settings.Default.SysproDB;
-                    vmSettings.ImportPathWages = Costing.Properties.Settings.Default.ImportPathWages;
-                    vmSettings.ImportPathCosting = Costing.Properties.Settings.Default.ImportPathCosting;
 
                     vmSettings.CostingServer = Costing.Properties.Settings.Default.CostingServer;
                     vmSettings.CostingDB = Costing.Properties.Settings.Default.CostingDB;
@@ -99,10 +95,6 @@ namespace Costing.UserControls
             if (vmSettings == null) return;
             try
             {
-                Costing.Properties.Settings.Default.SysproServer = vmSettings.SysproServer;
-                Costing.Properties.Settings.Default.SysproDB = vmSettings.SysproDB;
-                Costing.Properties.Settings.Default.ImportPathWages = vmSettings.ImportPathWages;
-                Costing.Properties.Settings.Default.ImportPathCosting = vmSettings.ImportPathCosting;
 
                 Costing.Properties.Settings.Default.CostingServer = vmSettings.CostingServer;
                 Costing.Properties.Settings.Default.CostingDB = vmSettings.CostingDB;
@@ -152,7 +144,6 @@ namespace Costing.UserControls
 
         private void btDeleteUser_Click(object sender, RoutedEventArgs e)
         {
-            // VisualTreeHelper to find which row the clicked button belongs to
             Button bt = sender as Button;
             DependencyObject dpo = VisualTreeHelper.GetParent(bt);
 
@@ -163,7 +154,8 @@ namespace Costing.UserControls
 
             if (dpo is DataGridRow dgr && dgr.Item is LoginUser user)
             {
-                // Removing from ObservableCollection automatically flags it for deletion in EF Core Local Cache
+                var confirmResult = MessageBox.Show($"Are you sure you want to permanently delete the user '{user.UserName}'?","Confirm Deletion",MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
                 vmSettings.OclUsers.Remove(user);
             }
         }

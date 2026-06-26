@@ -8,6 +8,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Data;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 
@@ -17,7 +18,7 @@ namespace Costing.UserControls
     {
         #region Controls
         public ObservableCollection<LoginUser> OCUsers { get; set; } = new ObservableCollection<LoginUser>();
-      
+
         DataSet DS = new DataSet();
         SQLConnection SQLCosting = new SQLConnection();
         LoginViewModel vmLogin = new LoginViewModel();
@@ -51,8 +52,8 @@ namespace Costing.UserControls
             try
             {
 
-               //get users from database
-               if(DS.Tables.Contains("Users"))
+                //get users from database
+                if (DS.Tables.Contains("Users"))
                 {
                     DS.Tables.Remove("Users");
                 }
@@ -134,7 +135,20 @@ namespace Costing.UserControls
             Mouse.OverrideCursor = Cursors.Arrow;
         }
         #endregion
-       
+
+        private void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var adminPrompt = new AdminOverride();
+
+            if (adminPrompt.ShowDialog() == true)
+            {
+                MainWindow main = new MainWindow();
+                this.Close();
+                main.ShowSettingsView();
+                main.Show();
+            }
+        }
+
     }
-  
+
 }
