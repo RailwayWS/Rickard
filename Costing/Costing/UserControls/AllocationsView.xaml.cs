@@ -41,7 +41,6 @@ namespace Costing.UserControls
 
             try
             {
-                DatabaseHelper.GetSysproData();
 
                 using (var context = new CostingDbContext())
                 {
@@ -159,6 +158,7 @@ namespace Costing.UserControls
             finally
             {
                 Mouse.OverrideCursor = null;
+                if (sender is Button finalBtn) finalBtn.IsEnabled = true;
             }
         }
         

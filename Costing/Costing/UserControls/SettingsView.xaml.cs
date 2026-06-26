@@ -40,7 +40,7 @@ namespace Costing.UserControls
                         FillUsers();
                         break;
                     case "tiWorkCentres":
-                        // todo
+                        FillWorkCentres();
                         break;
                 }
             }
@@ -58,6 +58,16 @@ namespace Costing.UserControls
                 {
                     vmSettings.SysproServer = Costing.Properties.Settings.Default.SysproServer;
                     vmSettings.SysproDB = Costing.Properties.Settings.Default.SysproDB;
+                    vmSettings.ImportPathWages = Costing.Properties.Settings.Default.ImportPathWages;
+                    vmSettings.ImportPathCosting = Costing.Properties.Settings.Default.ImportPathCosting;
+
+                    vmSettings.CostingServer = Costing.Properties.Settings.Default.CostingServer;
+                    vmSettings.CostingDB = Costing.Properties.Settings.Default.CostingDB;
+
+                    vmSettings.SysproServer = Costing.Properties.Settings.Default.SysproServer;
+                    vmSettings.SysproDB = Costing.Properties.Settings.Default.SysproDB;
+
+                    vmSettings.TempFolder = Costing.Properties.Settings.Default.TempFolder;
                     vmSettings.ImportPathWages = Costing.Properties.Settings.Default.ImportPathWages;
                     vmSettings.ImportPathCosting = Costing.Properties.Settings.Default.ImportPathCosting;
                 }
@@ -93,6 +103,17 @@ namespace Costing.UserControls
                 Costing.Properties.Settings.Default.SysproDB = vmSettings.SysproDB;
                 Costing.Properties.Settings.Default.ImportPathWages = vmSettings.ImportPathWages;
                 Costing.Properties.Settings.Default.ImportPathCosting = vmSettings.ImportPathCosting;
+
+                Costing.Properties.Settings.Default.CostingServer = vmSettings.CostingServer;
+                Costing.Properties.Settings.Default.CostingDB = vmSettings.CostingDB;
+
+                Costing.Properties.Settings.Default.SysproServer = vmSettings.SysproServer;
+                Costing.Properties.Settings.Default.SysproDB = vmSettings.SysproDB;
+
+                Costing.Properties.Settings.Default.TempFolder = vmSettings.TempFolder;
+                Costing.Properties.Settings.Default.ImportPathWages = vmSettings.ImportPathWages;
+                Costing.Properties.Settings.Default.ImportPathCosting = vmSettings.ImportPathCosting;
+
                 Costing.Properties.Settings.Default.Save();
 
                 MessageBox.Show("Application configurations updated successfully!");
@@ -214,6 +235,107 @@ namespace Costing.UserControls
             vmSettings.OclUsers.Add(newUser);
 
             pnlAddUser.Visibility = Visibility.Collapsed;
+        }
+        #endregion
+
+        #region Tab 3: Work Centres Logic
+        private async void FillWorkCentres()
+        {
+            if (vmSettings.OCWorkCentres == null || !vmSettings.OCWorkCentres.Any())
+            {
+                Mouse.OverrideCursor = Cursors.Wait;
+                try
+                {
+                    // Load into EF Core Local tracking
+                    await _context.WorkCentres.LoadAsync();
+                    vmSettings.OCWorkCentres = _context.WorkCentres.Local.ToObservableCollection();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error loading Work Centres: {ex.Message}");
+                }
+                finally
+                {
+                    Mouse.OverrideCursor = null;
+                }
+            }
+        }
+
+        private async void btnSyncWorkCentres_Click(object sender, RoutedEventArgs e)
+        {
+            Mouse.OverrideCursor = Cursors.Wait;
+            try
+            {
+                using (var sysContext = new SysproDBContext())
+                {
+                    // use LEFT JOIN to get the Cost Centre description from SYSPRO Cost Centre table
+                    string sql = @"
+                        SELECT 
+                            w.WorkCentre AS WorkCentreCode, 
+                            w.Description AS WorkCentreDesc, 
+                            w.CostCentre AS CostCentreCode, 
+                            c.Description AS CostCentreDesc 
+                        FROM dbo.BomWorkCentre w
+                        LEFT JOIN dbo.BomCostCentre c ON w.CostCentre = c.CostCentre";
+
+                    var sysproData = await sysContext.SysWorkCentres.FromSqlRaw(sql).ToListAsync();
+
+                    // Iterate and Sync
+                    foreach (var sysWc in sysproData)
+                    {
+                        var localWc = vmSettings.OCWorkCentres.FirstOrDefault(w => w.WcCode == sysWc.WorkCentreCode);
+
+                        if (localWc == null)
+                        {
+                            // Add missing SYSPRO Work Centre to local DB
+                            vmSettings.OCWorkCentres.Add(new WorkCentre
+                            {
+                                WcCode = sysWc.WorkCentreCode,
+                                WcDescription = sysWc.WorkCentreDesc,
+                                CcCode = sysWc.CostCentreCode,
+                                CostCentreDesc = sysWc.CostCentreDesc,
+                                Staff = "0" 
+                            });
+                        }
+                        else
+                        {
+                            // If it already exists, overwrite the descriptions in case SYSPRO was updated
+                            localWc.WcDescription = sysWc.WorkCentreDesc;
+                            localWc.CcCode = sysWc.CostCentreCode;
+                            localWc.CostCentreDesc = sysWc.CostCentreDesc;
+                        }
+                    }
+                }
+
+                MessageBox.Show("SYSPRO Sync complete! \n\nPlease click 'Save Work Centres' to commit these updates to your local database.", "Sync Successful", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"SYSPRO Sync Failed: \n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+            }
+        }
+
+        private async void btnSaveWorkCentres_Click(object sender, RoutedEventArgs e)
+        {
+            Mouse.OverrideCursor = Cursors.Wait;
+            try
+            {
+                // Commits the sync to the Costing DB
+                await _context.SaveChangesAsync();
+                MessageBox.Show("Work Centres saved successfully!", "Notification", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to save Work Centres: \n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+            }
         }
         #endregion
     }

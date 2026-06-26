@@ -17,6 +17,22 @@
                 <Grid>
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,10,0,60">
                         <StackPanel>
+                            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,0,0,20">
+                                <StackPanel>
+                                    <TextBlock Text="Costing Database Settings" FontSize="18" FontWeight="SemiBold" Foreground="#0F172A" Margin="0,0,0,5"/>
+                                    <TextBlock Text="Configure the local database connection." FontSize="13" Foreground="#64748B" Margin="0,0,0,15"/>
+
+                                    <StackPanel Margin="0,5,0,10">
+                                        <TextBlock Text="Costing Server Name" Margin="0,0,0,5" FontWeight="Medium" Foreground="#334155"/>
+                                        <TextBox Text="{Binding CostingServer, UpdateSourceTrigger=PropertyChanged}" Height="35" VerticalContentAlignment="Center" Padding="5,0"/>
+                                    </StackPanel>
+
+                                    <StackPanel Margin="0,5,0,5">
+                                        <TextBlock Text="Costing Database Name" Margin="0,0,0,5" FontWeight="Medium" Foreground="#334155"/>
+                                        <TextBox Text="{Binding CostingDB, UpdateSourceTrigger=PropertyChanged}" Height="35" VerticalContentAlignment="Center" Padding="5,0"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
                             <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="20">
                                 <StackPanel>
                                     <TextBlock Text="SYSPRO Connection Settings" FontSize="18" FontWeight="SemiBold" Foreground="#0F172A" Margin="0,0,0,5"/>
@@ -33,6 +49,8 @@
                                     </StackPanel>
                                 </StackPanel>
                             </Border>
+                            
+                            
 
                             <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,20,0,0">
                                 <StackPanel>
@@ -40,6 +58,10 @@
                                     <TextBlock Text="Set default file paths." FontSize="13" Foreground="#64748B" Margin="0,0,0,15"/>
 
                                     <StackPanel Margin="0,5,0,5">
+                                        <StackPanel Margin="0,5,0,15">
+                                            <TextBlock Text="Temporary Processing Folder" Margin="0,0,0,5" FontWeight="Medium" Foreground="#334155"/>
+                                            <TextBox Text="{Binding TempFolder, UpdateSourceTrigger=PropertyChanged}" Height="35" VerticalContentAlignment="Center" Padding="5,0"/>
+                                        </StackPanel>
                                         <TextBlock Text="Default Wages Excel Import Path" Margin="0,0,0,5" FontWeight="Medium" Foreground="#334155"/>
                                         <Grid>
                                             <Grid.ColumnDefinitions>
@@ -134,7 +156,28 @@
             </TabItem>
 
             <TabItem x:Name="tiWorkCentres" Header="Work Centres">
-                <TextBlock Text="WorkCentres" Margin="20" Foreground="#64748B"/>
+                <Grid Margin="0,10,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Button Grid.Row="0" x:Name="btnSyncWorkCentres" Content="Sync with SYSPRO" Click="btnSyncWorkCentres_Click" Width="180" Height="40" HorizontalAlignment="Left" Margin="0,0,0,10" Background="#F59E0B" Foreground="White" FontWeight="Bold" Cursor="Hand"/>
+
+                    <DataGrid Grid.Row="1" x:Name="dgWorkCentres" ItemsSource="{Binding OCWorkCentres}" AutoGenerateColumns="False" CanUserAddRows="False" Background="White" BorderBrush="#E2E8F0" Margin="0,0,0,15">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="WC Code" Binding="{Binding WcCode}" Width="80" IsReadOnly="True" Foreground="#64748B"/>
+                            <DataGridTextColumn Header="WC Description" Binding="{Binding WcDescription}" Width="*" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="CC Code" Binding="{Binding CcCode}" Width="80" IsReadOnly="True" Foreground="#64748B"/>
+                            <DataGridTextColumn Header="CC Description" Binding="{Binding CostCentreDesc}" Width="*" IsReadOnly="True"/>
+
+                            <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="100"/>
+                            <DataGridTextColumn Header="Staff Count" Binding="{Binding Staff}" Width="100"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Button Grid.Row="2" x:Name="btnSaveWorkCentres" Content="Save Work Centres" Click="btnSaveWorkCentres_Click" Width="180" Height="40" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#10B981" Foreground="White" FontWeight="Bold" Cursor="Hand"/>
+                </Grid>
             </TabItem>
 
         </TabControl>

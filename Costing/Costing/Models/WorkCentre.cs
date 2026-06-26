@@ -20,6 +20,9 @@ namespace Costing.Models
         [Column("cc_code")]
         public string CcCode { get; set; }
 
+        [Column("CostCentreDesc")]
+        public string CostCentreDesc { get; set; }
+
         [Column("type")]
         public string Type { get; set; }
 

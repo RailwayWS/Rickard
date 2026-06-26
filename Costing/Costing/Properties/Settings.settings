@@ -20,5 +20,8 @@
     <Setting Name="ImportPathCosting" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="TempFolder" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\RickTemp</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

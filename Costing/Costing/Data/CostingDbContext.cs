@@ -29,9 +29,8 @@ namespace Costing.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(
-                @"Server=RA-ERP;Database=Costing;Trusted_Connection=True;ConnectRetryCount=0; TrustServerCertificate=True;");
+                $@"Server={Costing.Properties.Settings.Default.CostingServer};Database={Costing.Properties.Settings.Default.CostingDB};Trusted_Connection=True;ConnectRetryCount=0;TrustServerCertificate=True;");
         }
-
     }
 
 }

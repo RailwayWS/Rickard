@@ -40,5 +40,33 @@ namespace Costing.Viewmodels
             get { return _oclUsers; }
             set { _oclUsers = value; OnPropertyChanged(nameof(OclUsers)); }
         }
+
+        private ObservableCollection<WorkCentre> _ocWorkCentres;
+        public ObservableCollection<WorkCentre> OCWorkCentres
+        {
+            get { return _ocWorkCentres; }
+            set { _ocWorkCentres = value; OnPropertyChanged(nameof(OCWorkCentres)); }
+        }
+
+        private string _costingServer;
+        public string CostingServer
+        {
+            get { return _costingServer; }
+            set { _costingServer = value; OnPropertyChanged(nameof(CostingServer)); }
+        }
+
+        private string _costingDB;
+        public string CostingDB
+        {
+            get { return _costingDB; }
+            set { _costingDB = value; OnPropertyChanged(nameof(CostingDB)); }
+        }
+
+        private string _tempFolder;
+        public string TempFolder
+        {
+            get { return _tempFolder; }
+            set { _tempFolder = value; OnPropertyChanged(nameof(TempFolder)); }
+        }
     }
 }
