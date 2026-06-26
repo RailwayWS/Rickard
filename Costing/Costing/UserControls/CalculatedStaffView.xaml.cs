@@ -52,7 +52,7 @@ namespace Costing.UserControls
                 List<CalculatedStaff> rawRecords = await Task.Run(() => Helpers.ExcelHelper.GetRawCalculatedStaffFromExcel(filePath));
 
                 // Fetch variables from SQL
-                List<StaffCost> liveDbCosts = await Task.Run(() => Helpers.DatabaseHelper.GetAllStaffCosts());
+                List<StaffCost> liveDbCosts = await Helpers.DatabaseHelper.GetAllStaffCostsAsync();
 
                 var progressReporter = new Progress<int>(percent =>
                 {
@@ -127,7 +127,7 @@ namespace Costing.UserControls
             try
             {
                 // Push the entire calculated list through our Upsert helper
-                await Task.Run(() => Helpers.DatabaseHelper.SaveCalculatedStaffToDatabase(vm.OCCalculatedStaff));
+                await Helpers.DatabaseHelper.SaveCalculatedStaffToDatabaseAsync(vm.OCCalculatedStaff);
 
                 MessageBox.Show("Calculated data has been synced with the database!", "Save Complete", MessageBoxButton.OK, MessageBoxImage.Information);
             }

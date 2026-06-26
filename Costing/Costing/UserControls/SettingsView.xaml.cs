@@ -156,7 +156,10 @@ namespace Costing.UserControls
             {
                 var confirmResult = MessageBox.Show($"Are you sure you want to permanently delete the user '{user.UserName}'?","Confirm Deletion",MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
-                vmSettings.OclUsers.Remove(user);
+                if (confirmResult == MessageBoxResult.Yes)
+                {
+                    vmSettings.OclUsers.Remove(user);
+                }
             }
         }
 

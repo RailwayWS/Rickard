@@ -48,7 +48,7 @@ namespace Costing.UserControls
                 vm.OCStaffCosts.Clear();
 
                 // Fetch directly from DB and load into UI
-                var savedDbCosts = await Task.Run(() => Helpers.DatabaseHelper.GetAllStaffCosts());
+                var savedDbCosts = await Helpers.DatabaseHelper.GetAllStaffCostsAsync();
 
                 foreach (var cost in savedDbCosts)
                 {
@@ -136,7 +136,7 @@ namespace Costing.UserControls
                 try
                 {
                     // Remove from DB
-                    await Task.Run(() => Helpers.DatabaseHelper.DeleteStaffCostFromDatabase(costToDelete));
+                    await Helpers.DatabaseHelper.DeleteStaffCostFromDatabaseAsync(costToDelete);
 
                     // Remove from UI 
                     vm.OCStaffCosts.Remove(costToDelete);
@@ -256,7 +256,7 @@ namespace Costing.UserControls
 
             try
             {
-                await Task.Run(() => Helpers.DatabaseHelper.SaveStaffCostsToDatabase(dataToSave));
+                await Helpers.DatabaseHelper.SaveStaffCostsToDatabaseAsync(dataToSave);
             }
             catch (Exception ex)
             {

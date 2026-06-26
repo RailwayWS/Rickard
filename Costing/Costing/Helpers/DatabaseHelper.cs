@@ -8,16 +8,17 @@ namespace Costing.Helpers
 {
     public class DatabaseHelper
     {
-        public static void SaveStaffToDatabase(IEnumerable<BasicEmployee> staffList)
+        public static async Task SaveStaffToDatabaseAsync(IEnumerable<BasicEmployee> staffList)
         {
-            using (var db = new CostingDbContext()) 
+            using (var db = new CostingDbContext())
             {
-                foreach (var emp in staffList) {
+                foreach (var emp in staffList)
+                {
                     //look for emp in db
-                    var existingEmployee = db.Staff.FirstOrDefault(e => e.Code == emp.Code);
+                    var existingEmployee = await db.Staff.FirstOrDefaultAsync(e => e.Code == emp.Code);
 
-                    if (existingEmployee != null) 
-                    { 
+                    if (existingEmployee != null)
+                    {
                         // if exists, update
                         existingEmployee.Name = emp.Name;
                         existingEmployee.CostCentre = emp.CostCentre;
@@ -31,14 +32,14 @@ namespace Costing.Helpers
                 // Find people in the DB who are no longer in the Excel sheet
                 var excelCodes = staffList.Select(e => e.Code).ToList();
 
-                var allDbStaff = db.Staff.ToList();
+                var allDbStaff = await db.Staff.ToListAsync();
 
                 var employeesToDelete = allDbStaff.Where(dbEmp => !excelCodes.Contains(dbEmp.Code)).ToList();
 
                 foreach (var oldEmp in employeesToDelete)
                 {
                     // delete Allocation
-                    var orphanedAllocation = db.Allocations.FirstOrDefault(a => a.Code == oldEmp.Code);
+                    var orphanedAllocation = await db.Allocations.FirstOrDefaultAsync(a => a.Code == oldEmp.Code);
                     if (orphanedAllocation != null)
                     {
                         db.Allocations.Remove(orphanedAllocation);
@@ -48,17 +49,17 @@ namespace Costing.Helpers
                     db.Staff.Remove(oldEmp);
                 }
 
-                db.SaveChanges();
+                await db.SaveChangesAsync();
             }
         }
 
-        public static void SaveStaffCostsToDatabase(IEnumerable<StaffCost> staffCostsList)
+        public static async Task SaveStaffCostsToDatabaseAsync(IEnumerable<StaffCost> staffCostsList)
         {
             using (var db = new CostingDbContext())
             {
                 foreach (var cost in staffCostsList)
                 {
-                    var existingCost = db.StaffCosts.FirstOrDefault(c => c.Id == cost.Id && cost.Id != 0);
+                    var existingCost = await db.StaffCosts.FirstOrDefaultAsync(c => c.Id == cost.Id && cost.Id != 0);
 
                     if (existingCost != null)
                     {
@@ -85,38 +86,39 @@ namespace Costing.Helpers
                 }
 
                 // save all changes
-                db.SaveChanges();
+                await db.SaveChangesAsync();
             }
         }
 
-        public static List<StaffCost> GetAllStaffCosts()
-        {
-            using ( var db = new CostingDbContext()){
-                return db.StaffCosts.ToList();
-            }
-        }
-
-        public static void DeleteStaffCostFromDatabase(StaffCost costToDelete)
+        public static async Task<List<StaffCost>> GetAllStaffCostsAsync()
         {
             using (var db = new CostingDbContext())
             {
-                var existingCost = db.StaffCosts.FirstOrDefault(c => c.Category == costToDelete.Category);
+                return await db.StaffCosts.ToListAsync();
+            }
+        }
 
-                if(existingCost != null)
+        public static async Task DeleteStaffCostFromDatabaseAsync(StaffCost costToDelete)
+        {
+            using (var db = new CostingDbContext())
+            {
+                var existingCost = await db.StaffCosts.FirstOrDefaultAsync(c => c.Category == costToDelete.Category);
+
+                if (existingCost != null)
                 {
                     db.StaffCosts.Remove(existingCost);
-                    db.SaveChanges();
+                    await db.SaveChangesAsync();
                 }
             }
         }
 
-        public static void SaveCalculatedStaffToDatabase(IEnumerable<CalculatedStaff> calculatedList)
+        public static async Task SaveCalculatedStaffToDatabaseAsync(IEnumerable<CalculatedStaff> calculatedList)
         {
             using (var db = new CostingDbContext())
             {
                 #region rogue vals
                 // find values in costing thats not in wages ( will probably remove this later )
-                var validCodes = db.Staff.Select(e => e.Code.Trim()).ToList();
+                var validCodes = await db.Staff.Select(e => e.Code.Trim()).ToListAsync();
 
                 var rogueRecords = calculatedList.Where(c => string.IsNullOrWhiteSpace(c.Code) || !validCodes.Contains(c.Code.Trim())).ToList();
 
@@ -141,7 +143,9 @@ namespace Costing.Helpers
                 foreach (var calc in calculatedList)
                 {
                     // find parent
-                    var existingRecord = db.CalculatedStaffRecords.Include(c => c.DynamicCosts).FirstOrDefault(c => c.Code == calc.Code && c.WorkCentre == calc.WorkCentre);
+                    var existingRecord = await db.CalculatedStaffRecords
+                        .Include(c => c.DynamicCosts)
+                        .FirstOrDefaultAsync(c => c.Code == calc.Code && c.WorkCentre == calc.WorkCentre);
 
                     if (existingRecord != null)
                     {
@@ -153,7 +157,6 @@ namespace Costing.Helpers
                         existingRecord.Efficiency = calc.Efficiency;
                         existingRecord.Rate = calc.Rate;
                         existingRecord.Total = calc.Total;
-
 
                         //Explicitly tell the specific DbSet to delete the old children
                         if (existingRecord.DynamicCosts != null && existingRecord.DynamicCosts.Any())
@@ -178,11 +181,11 @@ namespace Costing.Helpers
                     }
                 }
 
-                db.SaveChanges();
+                await db.SaveChangesAsync();
             }
         }
 
-        public static void GetSysproData()
+        public static async Task GetSysproDataAsync()
         {
             var newCostCentres = new List<CostCentre>();
             var newWorkCentres = new List<WorkCentre>();
@@ -191,13 +194,13 @@ namespace Costing.Helpers
 
             using (SqlConnection con = new SqlConnection(sysproConnStr))
             {
-                con.Open();
+                await con.OpenAsync();
 
                 // Grab Cost Centres
                 using (SqlCommand cmd = new SqlCommand("SELECT CostCentre, Description FROM dbo.BomCostCentre", con))
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
                 {
-                    while (reader.Read())
+                    while (await reader.ReadAsync())
                     {
                         newCostCentres.Add(new CostCentre
                         {
@@ -209,9 +212,9 @@ namespace Costing.Helpers
 
                 // Grab Work Centres
                 using (SqlCommand cmd = new SqlCommand("SELECT WorkCentre, Description, CostCentre FROM dbo.BomWorkCentre", con))
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
                 {
-                    while (reader.Read())
+                    while (await reader.ReadAsync())
                     {
                         newWorkCentres.Add(new WorkCentre
                         {
@@ -229,8 +232,8 @@ namespace Costing.Helpers
             using (var context = new CostingDbContext())
             {
                 // Pull what is currently in our local database
-                var existingCostCentres = context.CostCentres.ToList();
-                var existingWorkCentres = context.WorkCentres.ToList();
+                var existingCostCentres = await context.CostCentres.ToListAsync();
+                var existingWorkCentres = await context.WorkCentres.ToListAsync();
 
                 // UPSERT COST CENTRES
                 foreach (var newCc in newCostCentres)
@@ -249,7 +252,7 @@ namespace Costing.Helpers
                 }
 
                 // Save parents so they exist before we process children
-                context.SaveChanges();
+                await context.SaveChangesAsync();
 
                 // UPSERT WORK CENTRES
                 foreach (var newWc in newWorkCentres)
@@ -267,7 +270,7 @@ namespace Costing.Helpers
                         context.WorkCentres.Add(newWc);
                     }
                 }
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
         }
     }

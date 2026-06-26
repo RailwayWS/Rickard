@@ -90,7 +90,7 @@ namespace Costing.UserControls
 
             try
             {
-                await Task.Run(() => Helpers.DatabaseHelper.SaveStaffToDatabase(vm.OCStaff));
+                await Helpers.DatabaseHelper.SaveStaffToDatabaseAsync(vm.OCStaff);
                 MessageBox.Show("Staff data has been successfully saved to the RA-ERP Costing database!", "Save Complete", MessageBoxButton.OK, MessageBoxImage.Information);
             }
 
