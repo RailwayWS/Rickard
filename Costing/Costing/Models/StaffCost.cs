@@ -29,5 +29,9 @@ namespace Costing.Models
 
         [Column("BaseCategory")]
         public string BaseCategory { get; set; }
+
+        [Column("MaxLimit")]
+        public decimal? MaxLimit { get; set; }
+
     }
 }

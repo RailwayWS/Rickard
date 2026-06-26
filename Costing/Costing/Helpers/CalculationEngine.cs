@@ -62,10 +62,9 @@ namespace Costing.Helpers
                         finalValue = baseSum * rule.Value;
                     }
 
-                    if (cleanName.Equals("UIF", StringComparison.OrdinalIgnoreCase))
+                    if (rule.MaxLimit.HasValue && finalValue > rule.MaxLimit.Value)
                     {
-                        decimal maxAnnualUif = 17712m;
-                        if (finalValue > maxAnnualUif) finalValue = maxAnnualUif;
+                        finalValue = rule.MaxLimit.Value;
                     }
 
                     // Save it so we never calculate it twice for this employee

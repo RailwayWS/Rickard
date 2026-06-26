@@ -21,15 +21,11 @@ using System.Windows.Shapes;
 
 namespace Costing.UserControls
 {
-    /// <summary>
-    /// Interaction logic for StaffCostsView.xaml
-    /// </summary>
     public partial class StaffCostsView : UserControl
     {
         public StaffCostsView()
         {
             InitializeComponent();
-
         }
 
         private bool _isAddingNew = false;
@@ -40,7 +36,7 @@ namespace Costing.UserControls
             mainWindow.ShowMainMenu();
         }
 
-        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        private async void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             var vm = this.DataContext as StaffCostsViewModel;
             if (vm == null) return;
@@ -52,7 +48,7 @@ namespace Costing.UserControls
                 vm.OCStaffCosts.Clear();
 
                 // Fetch directly from DB and load into UI
-                var savedDbCosts = Helpers.DatabaseHelper.GetAllStaffCosts();
+                var savedDbCosts = await Task.Run(() => Helpers.DatabaseHelper.GetAllStaffCosts());
 
                 foreach (var cost in savedDbCosts)
                 {
@@ -70,7 +66,7 @@ namespace Costing.UserControls
                 Mouse.OverrideCursor = null;
             }
 
-            RefreshBaseCategoryCheckboxes();
+            RefreshBaseCategoryCheckboxes(vm);
         }
 
 
@@ -83,6 +79,7 @@ namespace Costing.UserControls
             txtFormCategory.Text = "";
             cmbFormType.Text = "";
             txtFormValue.Text = "0";
+            txtFormMaxLimit.Text = "";
 
             // Show the form
             FormPanel.Visibility = Visibility.Visible;
@@ -104,6 +101,7 @@ namespace Costing.UserControls
             txtFormCategory.Text = vm.SelectedStaffCost.Category;
             cmbFormType.Text = vm.SelectedStaffCost.Type;
             txtFormValue.Text = vm.SelectedStaffCost.Value.ToString("0.#####");
+            txtFormMaxLimit.Text = vm.SelectedStaffCost.MaxLimit?.ToString("0.#####") ?? "";
 
 
             string existingBases = vm.SelectedStaffCost.BaseCategory ?? "";
@@ -119,7 +117,7 @@ namespace Costing.UserControls
             FormPanel.Visibility = Visibility.Visible;
         }
 
-        private void btnDelete_Click(object sender, RoutedEventArgs e)
+        private async void btnDelete_Click(object sender, RoutedEventArgs e)
         {
             var vm = this.DataContext as StaffCostsViewModel;
 
@@ -138,12 +136,12 @@ namespace Costing.UserControls
                 try
                 {
                     // Remove from DB
-                    Helpers.DatabaseHelper.DeleteStaffCostFromDatabase(costToDelete);
+                    await Task.Run(() => Helpers.DatabaseHelper.DeleteStaffCostFromDatabase(costToDelete));
 
                     // Remove from UI 
                     vm.OCStaffCosts.Remove(costToDelete);
 
-                    RefreshBaseCategoryCheckboxes();
+                    RefreshBaseCategoryCheckboxes(vm);
 
                     // Select the next available item and hide the form
                     vm.SelectedStaffCost = vm.OCStaffCosts.FirstOrDefault();
@@ -162,16 +160,50 @@ namespace Costing.UserControls
             FormPanel.Visibility = Visibility.Collapsed;
         }
 
-        private void btnConfirmForm_Click(object sender, RoutedEventArgs e)
+        private async void btnConfirmForm_Click(object sender, RoutedEventArgs e)
         {
             var vm = this.DataContext as StaffCostsViewModel;
             if (vm == null) return;
+
+            string proposedCategoryName = txtFormCategory.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(proposedCategoryName))
+            {
+                MessageBox.Show("Please enter a valid Category name.", "Invalid Input", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            bool isDuplicate = _isAddingNew
+                ? vm.OCStaffCosts.Any(c => c.Category.Equals(proposedCategoryName, StringComparison.OrdinalIgnoreCase))
+                : vm.OCStaffCosts.Any(c => c.Id != vm.SelectedStaffCost.Id && c.Category.Equals(proposedCategoryName, StringComparison.OrdinalIgnoreCase));
+
+            if (isDuplicate)
+            {
+                MessageBox.Show($"A category named '{proposedCategoryName}' already exists.\n\nPlease choose a unique name.",
+                                "Duplicate Category", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
             string cleanValue = txtFormValue.Text.Replace(",", ".");
             if (!decimal.TryParse(cleanValue, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal parsedValue))
             {
                 MessageBox.Show("Please enter a valid number for the Cost Value.", "Invalid Input", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
+            }
+
+            decimal? parsedMaxLimit = null;
+            if (!string.IsNullOrWhiteSpace(txtFormMaxLimit.Text))
+            {
+                string cleanLimit = txtFormMaxLimit.Text.Replace(",", ".");
+                if (decimal.TryParse(cleanLimit, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal limitValue))
+                {
+                    parsedMaxLimit = limitValue;
+                }
+                else
+                {
+                    MessageBox.Show("Please enter a valid number for the Max Limit, or leave it blank.", "Invalid Input", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
             }
 
             var checkedNames = new List<string>();
@@ -188,13 +220,15 @@ namespace Costing.UserControls
             {
                 // ADD LOGIC
                 int newId = vm.OCStaffCosts.Any() ? vm.OCStaffCosts.Max(x => x.Id) + 1 : 1;
+
                 var newCost = new StaffCost
                 {
                     Id = newId,
-                    Category = txtFormCategory.Text,
+                    Category = proposedCategoryName,
                     Type = cmbFormType.Text,
                     Value = parsedValue,
-                    BaseCategory = finalBaseCategoryString
+                    BaseCategory = finalBaseCategoryString,
+                    MaxLimit = parsedMaxLimit
                 };
 
                 vm.OCStaffCosts.Add(newCost);
@@ -203,10 +237,11 @@ namespace Costing.UserControls
             else
             {
                 // EDIT LOGIC
-                vm.SelectedStaffCost.Category = txtFormCategory.Text;
+                vm.SelectedStaffCost.Category = proposedCategoryName;
                 vm.SelectedStaffCost.Type = cmbFormType.Text;
                 vm.SelectedStaffCost.Value = parsedValue;
                 vm.SelectedStaffCost.BaseCategory = finalBaseCategoryString;
+                vm.SelectedStaffCost.MaxLimit = parsedMaxLimit;
 
                 // Force UI refresh
                 var tempItem = vm.SelectedStaffCost;
@@ -214,28 +249,32 @@ namespace Costing.UserControls
                 vm.SelectedStaffCost = tempItem;
             }
 
-            // Auto-Save to Database immediately after adding/editing
+            // Auto-Save to Database after adding/editing
+            var dataToSave = vm.OCStaffCosts.ToList();
+
+            FormPanel.Visibility = Visibility.Collapsed;
+
             try
             {
-                Helpers.DatabaseHelper.SaveStaffCostsToDatabase(vm.OCStaffCosts);
+                await Task.Run(() => Helpers.DatabaseHelper.SaveStaffCostsToDatabase(dataToSave));
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Values were updated on screen but failed to save to the database:\n\n" + ex.Message, "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
-            // Hide the form after a successful apply
-            FormPanel.Visibility = Visibility.Collapsed;
-
-            RefreshBaseCategoryCheckboxes();
+            RefreshBaseCategoryCheckboxes(vm);
         }
 
-        private void RefreshBaseCategoryCheckboxes()
+        private void RefreshBaseCategoryCheckboxes(StaffCostsViewModel vm)
         {
             pnlBaseCategories.Children.Clear();
 
-            var dbCosts = Costing.Helpers.DatabaseHelper.GetAllStaffCosts();
-            var categoryNames = dbCosts.Select(c => c.Category).ToList();
+            var categoryNames = vm.OCStaffCosts
+                                .Where(c => !string.IsNullOrWhiteSpace(c.Category))
+                                .Select(c => c.Category.Trim())
+                                .Distinct()
+                                .ToList();
 
             categoryNames.Insert(0, "Allocation");
             categoryNames.Insert(0, "RatePerHour");
@@ -246,7 +285,7 @@ namespace Costing.UserControls
                 var cb = new CheckBox
                 {
                     Content = name,
-                    Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#CBD5E1")), // Made this lighter for your dark theme!
+                    Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#CBD5E1")),
                     Margin = new Thickness(0, 0, 15, 8),
                     Tag = name
                 };
@@ -254,9 +293,6 @@ namespace Costing.UserControls
                 pnlBaseCategories.Children.Add(cb);
             }
         }
-
-        // This runs every time a user ticks or unticks a box
-
 
         private void cmbFormType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {

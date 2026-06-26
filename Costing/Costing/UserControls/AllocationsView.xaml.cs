@@ -95,49 +95,56 @@ namespace Costing.UserControls
 
         #region Save Method
         
-        private void btnSave_Click(object sender, RoutedEventArgs e)
+        private async void btnSave_Click(object sender, RoutedEventArgs e)
         {
             if (vmAllocations == null || vmAllocations.OCAllocations == null) return;
+            if (sender is Button btn) btn.IsEnabled = false;
 
             Mouse.OverrideCursor = Cursors.Wait;
 
             try
             {
-                using (var context = new CostingDbContext())
+
+                var uiData = vmAllocations.OCAllocations.ToList();
+
+                await Task.Run(() =>
                 {
-                    var allWorkCentres = context.WorkCentres.ToList();
-
-                    foreach (var uiAllocation in vmAllocations.OCAllocations)
+                    using (var context = new CostingDbContext())
                     {
-                        if (string.IsNullOrEmpty(uiAllocation.WorkCentre)) continue;
+                        var allWorkCentres = context.WorkCentres.ToList();
+                        var existingAllocations = context.Allocations.ToList();
 
-                        var dbRecord = context.Allocations.FirstOrDefault(a => a.Code == uiAllocation.Code);
-                        var matchingWC = allWorkCentres.FirstOrDefault(w => w.WcCode == uiAllocation.WorkCentre);
-                        string newCostCentre = matchingWC != null ? matchingWC.CcCode : null;
+                        foreach (var uiAllocation in uiData)
+                        {
+                            if (string.IsNullOrEmpty(uiAllocation.WorkCentre)) continue;
 
-                        if (dbRecord != null)
-                        {
-                            dbRecord.WorkCentre = uiAllocation.WorkCentre;
-                            dbRecord.CostCentre = newCostCentre;
-                        }
-                        else
-                        {
-                            context.Allocations.Add(new Allocation
+                            var dbRecord = context.Allocations.FirstOrDefault(a => a.Code == uiAllocation.Code);
+                            var matchingWC = allWorkCentres.FirstOrDefault(w => w.WcCode == uiAllocation.WorkCentre);
+                            string newCostCentre = matchingWC != null ? matchingWC.CcCode : null;
+
+                            if (dbRecord != null)
                             {
-                                Code = uiAllocation.Code,
-                                Name = uiAllocation.Name,
-                                WorkCentre = uiAllocation.WorkCentre,
-                                CostCentre = newCostCentre
-                            });
+                                dbRecord.WorkCentre = uiAllocation.WorkCentre;
+                                dbRecord.CostCentre = newCostCentre;
+                            }
+                            else
+                            {
+                                context.Allocations.Add(new Allocation
+                                {
+                                    Code = uiAllocation.Code,
+                                    Name = uiAllocation.Name,
+                                    WorkCentre = uiAllocation.WorkCentre,
+                                    CostCentre = newCostCentre
+                                });
+                            }
                         }
-                    }
 
-                    context.SaveChanges();
-                }
-                
-                // Refresh the data instead of complex UI binding
+                        context.SaveChanges();
+                    }
+                });
+
                 GetAllocationsData();
-                
+
                 Message msg = new Message("All employee allocations have been successfully saved!");
                 msg.ShowDialog();
             }

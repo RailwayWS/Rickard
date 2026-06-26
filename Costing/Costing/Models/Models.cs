@@ -23,7 +23,7 @@ namespace Costing.Models
         [Column("Email")]
         public string Email { get; set; }
 
-        [Column("UserName")]
+        [Column("Role")]
         public string Role { get; set; }
 
     }

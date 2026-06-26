@@ -67,6 +67,7 @@ namespace Costing.Helpers
                         existingCost.Type = cost.Type;
                         existingCost.Value = cost.Value;
                         existingCost.BaseCategory = cost.BaseCategory;
+                        existingCost.MaxLimit = cost.MaxLimit;
                     }
                     else
                     {
@@ -76,7 +77,8 @@ namespace Costing.Helpers
                             Category = cost.Category,
                             Type = cost.Type,
                             Value = cost.Value,
-                            BaseCategory = cost.BaseCategory
+                            BaseCategory = cost.BaseCategory,
+                            MaxLimit = cost.MaxLimit
                         };
                         db.StaffCosts.Add(newCost);
                     }

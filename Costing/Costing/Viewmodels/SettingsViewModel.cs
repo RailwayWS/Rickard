@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Costing.Models;
+using System;
+using System.Collections.ObjectModel;
 
 namespace Costing.Viewmodels
 {
@@ -30,6 +32,13 @@ namespace Costing.Viewmodels
         {
             get { return _importPathCosting; }
             set { _importPathCosting = value; OnPropertyChanged(nameof(ImportPathCosting)); }
+        }
+
+        private ObservableCollection<LoginUser> _oclUsers;
+        public ObservableCollection<LoginUser> OclUsers
+        {
+            get { return _oclUsers; }
+            set { _oclUsers = value; OnPropertyChanged(nameof(OclUsers)); }
         }
     }
 }

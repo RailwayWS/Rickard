@@ -24,6 +24,8 @@ namespace Costing.Data
 
         public DbSet<WorkCentre> WorkCentres { get; set; }
 
+        public DbSet<LoginUser> LoginUsers { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(
