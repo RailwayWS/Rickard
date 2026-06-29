@@ -42,7 +42,7 @@
 
     <DockPanel>
 
-        <Grid DockPanel.Dock="Left" Width="280" Background="#1E293B">
+        <Grid DockPanel.Dock="Left" Width="350" Background="#1E293B">
             <Grid.Effect>
                 <DropShadowEffect BlurRadius="15" ShadowDepth="3" Opacity="0.3"/>
             </Grid.Effect>

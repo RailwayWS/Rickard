@@ -109,11 +109,12 @@ namespace Costing.UserControls
                 //Rebuild dynamic columns
                 txtProgress.Text = "Rebuilding grid columns...";
 
-                // Remove any previously added dynamic columns (keep the first 8 static ones)
                 while (CalculatedDataGrid.Columns.Count > 9)
-                    CalculatedDataGrid.Columns.RemoveAt(CalculatedDataGrid.Columns.Count - 2);
+                {
+                    CalculatedDataGrid.Columns.RemoveAt(7);
+                }
 
-                int insertIndex = CalculatedDataGrid.Columns.Count - 2; // before TOTAL
+                int insertIndex = 7;
 
                 foreach (var dbCost in liveDbCosts)
                 {
@@ -126,6 +127,7 @@ namespace Costing.UserControls
                         },
                         Width = new DataGridLength(80)
                     });
+
                     insertIndex++;
                 }
 

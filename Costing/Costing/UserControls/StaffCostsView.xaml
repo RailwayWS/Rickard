@@ -5,116 +5,165 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:Costing.Viewmodels"
              mc:Ignorable="d" 
-             d:DesignHeight="850" d:DesignWidth="280"
-             Background="#1E293B"
-             Loaded="UserControl_Loaded">
+             d:DesignHeight="850" d:DesignWidth="400"
+             Background="#0F172A" Loaded="UserControl_Loaded">
 
     <UserControl.DataContext>
         <vm:StaffCostsViewModel/>
     </UserControl.DataContext>
 
-    <Grid>
-        <StackPanel Margin="20">
-
-            <Button Content="Back to Menu" Click="btnBack_Click" Margin="0,0,0,30" FontSize="13" FontWeight="SemiBold" 
-                    Background="Transparent" BorderThickness="0" Padding="0" HorizontalAlignment="Left">
-                <Button.Style>
-                    <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-                        <Setter Property="Foreground" Value="#94A3B8"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
+    <UserControl.Resources>
+        <Style x:Key="ChipCheckBoxStyle" TargetType="CheckBox">
+            <Setter Property="Margin" Value="0,0,8,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Border x:Name="ChipBorder" 
+                                Background="#1E293B" 
+                                BorderBrush="#334155" 
+                                BorderThickness="1" 
+                                CornerRadius="16"
+                                Padding="10,6"
+                                Margin="5,0,0,0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="ChipBorder" Property="Background" Value="#3B82F6"/>
+                                <Setter TargetName="ChipBorder" Property="BorderBrush" Value="#3B82F6"/>
                                 <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
                             </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-            </Button>
+                            <Trigger Property="IsChecked" Value="False">
+                                <Setter Property="Foreground" Value="#94A3B8"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsChecked" Value="False"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="ChipBorder" Property="Background" Value="#334155"/>
+                                <Setter Property="Foreground" Value="#CBD5E1"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-            <TextBlock Text="Staff Costs" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Foreground="White" Margin="0,0,0,20"/>
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="#1E293B"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#334155"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" Margin="10,0,10,0">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="10,0,10,0" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter Property="BorderBrush" Value="#3B82F6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
 
-            <TextBlock Text="Select Category" Foreground="#CBD5E1" FontWeight="SemiBold" Margin="0,0,0,5"/>
-            <ComboBox ItemsSource="{Binding OCStaffCosts}" 
-                      SelectedItem="{Binding SelectedStaffCost}" 
-                      DisplayMemberPath="Category" 
-                      Height="32" Margin="0,0,0,15" VerticalContentAlignment="Center" Padding="5,0"/>
+    <Grid Margin="20">
+        <StackPanel VerticalAlignment="Top">
+            <Button Content="Back to Menu" Click="btnBack_Click" Margin="0,0,0,24" FontSize="13" FontWeight="SemiBold" 
+                    Background="Transparent" BorderThickness="0" Padding="0" HorizontalAlignment="Left" Foreground="#94A3B8" Cursor="Hand"/>
+            <TextBlock Text="Staff Costs" FontSize="24" FontWeight="Bold" Foreground="White" Margin="0,0,0,24"/>
 
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                <TextBlock Text="Type: " Foreground="#94A3B8"/>
-                <TextBlock Text="{Binding SelectedStaffCost.Type}" FontWeight="Bold" Foreground="White"/>
+            <StackPanel x:Name="ViewPanel" Visibility="Visible">
+
+                <TextBlock Text="Select Category" Foreground="#94A3B8" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                <ComboBox ItemsSource="{Binding OCStaffCosts}" 
+                          SelectedItem="{Binding SelectedStaffCost}" 
+                          DisplayMemberPath="Category" 
+                          Height="36" Margin="0,0,0,24" 
+                          VerticalContentAlignment="Center"/>
+
+                <Grid Margin="0,0,0,32">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="12"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="12"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="12"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Type" Foreground="#64748B"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedStaffCost.Type}" FontWeight="SemiBold" Foreground="White"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Value" Foreground="#64748B"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedStaffCost.Value, StringFormat={}{0:0.#####}}" FontWeight="SemiBold" Foreground="White"/>
+
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Base" Foreground="#64748B"/>
+                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SelectedStaffCost.BaseCategory}" FontWeight="SemiBold" Foreground="White" TextWrapping="Wrap"/>
+
+                    <TextBlock Grid.Row="6" Grid.Column="0" Text="Max Limit" Foreground="#64748B"/>
+                    <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding SelectedStaffCost.MaxLimit, StringFormat={}{0:0.00}}" FontWeight="SemiBold" Foreground="White"/>
+                </Grid>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0" Content="Add" Click="btnAdd_Click" Background="#3B82F6" BorderThickness="0" Foreground="White" Height="32" FontWeight="SemiBold" Cursor="Hand"/>
+                    <Button Grid.Column="2" Content="Edit" Click="btnEdit_Click" Background="#1E293B" BorderBrush="#334155" BorderThickness="1" Foreground="#E2E8F0" Height="32" Cursor="Hand"/>
+                    <Button Grid.Column="4" Content="Delete" Click="btnDelete_Click" Background="#450a0a" BorderBrush="#991b1b" BorderThickness="1" Foreground="#f87171" Height="32" Cursor="Hand"/>
+                </Grid>
             </StackPanel>
 
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                <TextBlock Text="Value: " Foreground="#94A3B8"/>
-                <TextBlock Text="{Binding SelectedStaffCost.Value, StringFormat={}{0:0.#####}}" FontWeight="Bold" Foreground="White"/>
+            <StackPanel x:Name="FormPanel" Visibility="Collapsed" Background="#1E293B" Margin="0,10">
+                <TextBlock x:Name="txtFormTitle" Text="Edit Category" Foreground="White" FontSize="16" FontWeight="Bold" Margin="10,10,0,10"/>
+
+                <TextBlock Text="Category Name" Foreground="#94A3B8" FontSize="12" FontWeight="SemiBold" Margin="10,0,0,5"/>
+                <TextBox x:Name="txtFormCategory" Height="36" Margin="0,0,0,16"/>
+
+                <TextBlock Text="Cost Type" Foreground="#94A3B8" FontSize="12" FontWeight="SemiBold" Margin="10,0,0,6"/>
+                <ComboBox x:Name="cmbFormType" ItemsSource="{Binding TypesList}" Height="36" Margin="10,0,10,16" SelectionChanged="cmbFormType_SelectionChanged" VerticalContentAlignment="Center"/>
+
+                <TextBlock Text="Base Category (If %)" Foreground="#94A3B8" FontSize="12" FontWeight="SemiBold" Margin="10,0,0,8"/>
+                <WrapPanel x:Name="pnlBaseCategories" Orientation="Horizontal" Margin="0,0,0,16" />
+
+                <TextBlock Text="Cost Value" Foreground="#94A3B8" FontSize="12" FontWeight="SemiBold" Margin="10,0,0,6"/>
+                <TextBox x:Name="txtFormValue" Height="36" Margin="0,0,0,16"/>
+
+                <TextBlock Text="Max Annual Limit" Foreground="#94A3B8" FontSize="12" FontWeight="SemiBold" Margin="10,0,0,2"/>
+                <TextBlock Text="Leave blank if there is no cap." FontSize="11" Foreground="#64748B" Margin="10,0,0,6"/>
+                <TextBox x:Name="txtFormMaxLimit" Height="36" Margin="0,0,0,24"/>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0" Content="Cancel" Click="btnCancelForm_Click" Background="Transparent" BorderBrush="#334155" BorderThickness="1" Foreground="#94A3B8" Height="36" Cursor="Hand"/>
+                    <Button Grid.Column="2" Content="Confirm" Click="btnConfirmForm_Click" Background="#3B82F6" BorderThickness="0" Foreground="White" Height="36" FontWeight="Bold" Cursor="Hand"/>
+                </Grid>
             </StackPanel>
-
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                <TextBlock Text="Base Category: " Foreground="#94A3B8"/>
-                <TextBlock Text="{Binding SelectedStaffCost.BaseCategory}" FontWeight="Bold" Foreground="White" TextWrapping="Wrap" MaxWidth="150"/>
-            </StackPanel>
-
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                <TextBlock Text="Max Limit: " Foreground="#94A3B8"/>
-                <TextBlock Text="{Binding SelectedStaffCost.MaxLimit, StringFormat={}{0:0.00}}" FontWeight="Bold" Foreground="White"/>
-            </StackPanel>
-
-            <Grid Margin="0,0,0,20">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="5"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="5"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <Button Grid.Column="0" Content="Add" Click="btnAdd_Click" Background="Transparent" BorderBrush="#94A3B8" BorderThickness="1" Foreground="#94A3B8" Padding="0,5"/>
-                <Button Grid.Column="2" Content="Edit" Click="btnEdit_Click" Background="Transparent" BorderBrush="#3B82F6" BorderThickness="1" Foreground="#3B82F6" Padding="0,5"/>
-                <Button Grid.Column="4" Content="Delete" Click="btnDelete_Click" Background="Transparent" BorderBrush="#EF4444" BorderThickness="1" Foreground="#EF4444" Padding="0,5"/>
-                <Rectangle Width="1" Fill="#CBD5E1" Margin="0,5,20,5" />
-                
-            </Grid>
-
-
-            <Border x:Name="FormPanel" Visibility="Collapsed" Background="#0F172A" CornerRadius="6" Padding="15" Margin="0,10,0,0">
-                <StackPanel>
-                    <TextBlock x:Name="txtFormTitle" Text="Edit Category" Foreground="White" FontWeight="Bold" Margin="0,0,0,15" HorizontalAlignment="Center"/>
-
-                    <TextBlock Text="Category Name" Foreground="#CBD5E1" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                    <TextBox x:Name="txtFormCategory" Height="32" VerticalContentAlignment="Center" Padding="5,0" Margin="0,0,0,15"/>
-
-                    <TextBlock Text="Cost Type" Foreground="#CBD5E1" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                    <ComboBox x:Name="cmbFormType" ItemsSource="{Binding TypesList}" Height="32" Margin="0,0,0,15" 
-                              VerticalContentAlignment="Center" Padding="5,0" SelectionChanged="cmbFormType_SelectionChanged"/>
-
-                    <TextBlock Text="Base Category (If %):" Foreground="#CBD5E1" FontWeight="SemiBold" Margin="0,0,0,5"/>
-
-                    <Border CornerRadius="4" Padding="8" Margin="0,0,0,15">
-                        <WrapPanel x:Name="pnlBaseCategories" Orientation="Horizontal" />
-                    </Border>
-
-                    <TextBlock Text="Cost Value" Foreground="#CBD5E1" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                    <TextBox x:Name="txtFormValue" Height="32" VerticalContentAlignment="Center" Padding="5,0" Margin="0,0,0,0"/>
-
-                    <StackPanel Margin="0,15,0,0">
-                        <TextBlock Text="Max Annual Limit (Optional)" FontWeight="Medium" Foreground="#CBD5E1" Margin="0,0,0,0"/>
-                        <TextBox x:Name="txtFormMaxLimit" Height="35" VerticalContentAlignment="Center"/>
-                        <TextBlock Text="Leave blank if there is no cap." FontSize="11" Foreground="#94A3B8" Margin="0,2,0,10"/>
-                    </StackPanel>
-
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0" Content="Cancel" Click="btnCancelForm_Click" Background="Transparent" BorderBrush="#94A3B8" BorderThickness="1" Foreground="#94A3B8" Padding="0,5"/>
-                        <Button Grid.Column="2" Content="Confirm" Click="btnConfirmForm_Click" Background="#3B82F6" BorderThickness="0" Foreground="White" Padding="0,5"/>
-                    </Grid>
-                </StackPanel>
-            </Border>
 
         </StackPanel>
-
-        
     </Grid>
 </UserControl>

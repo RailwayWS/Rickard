@@ -1,23 +1,10 @@
-﻿using Costing.Helpers;
-using Costing.Models;
+﻿using Costing.Models;
 using Costing.Viewmodels;
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Costing.UserControls
 {
@@ -257,6 +244,15 @@ namespace Costing.UserControls
             try
             {
                 await Helpers.DatabaseHelper.SaveStaffCostsToDatabaseAsync(dataToSave);
+                var freshDbCosts = await Helpers.DatabaseHelper.GetAllStaffCostsAsync();
+
+                vm.OCStaffCosts.Clear();
+                foreach (var cost in freshDbCosts)
+                {
+                    vm.OCStaffCosts.Add(cost);
+                }
+
+                vm.SelectedStaffCost = vm.OCStaffCosts.FirstOrDefault(c => c.Category == proposedCategoryName);
             }
             catch (Exception ex)
             {
@@ -289,6 +285,8 @@ namespace Costing.UserControls
                     Margin = new Thickness(0, 0, 15, 8),
                     Tag = name
                 };
+
+                cb.Style = (Style)FindResource("ChipCheckBoxStyle");
 
                 pnlBaseCategories.Children.Add(cb);
             }
