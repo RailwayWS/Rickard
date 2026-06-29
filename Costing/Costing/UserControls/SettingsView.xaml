@@ -37,7 +37,6 @@
             </Setter>
         </Style>
 
-        <!-- Shared dropdown options for Work Centre Type -->
         <x:Array x:Key="WorkCentreTypes" Type="sys:String"
                  xmlns:sys="clr-namespace:System;assembly=mscorlib">
             <sys:String>Man Hours</sys:String>

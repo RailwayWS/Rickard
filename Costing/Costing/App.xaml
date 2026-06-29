@@ -9,7 +9,6 @@
             <Setter Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}" />
             <Setter Property="Foreground" Value="White" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Padding" Value="10" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -24,7 +23,7 @@
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"
                                               TextElement.FontWeight="Normal" 
-                                              Margin="{TemplateBinding Padding}" 
+
                                               TextElement.Foreground="{TemplateBinding Foreground}"/>
                         </Border>
 

@@ -6,11 +6,11 @@ namespace Costing.Models
     [Table("Allocations")]
     public class Allocation
     {
+        [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("id")]
         public int Id { get; set; }
 
-        [Key]
         [Column("code")]
         public string Code { get; set; }
 
@@ -22,5 +22,8 @@ namespace Costing.Models
 
         [Column("cost_centre")]
         public string CostCentre { get; set; }
+
+        [Column("portion")]
+        public decimal? Portion { get; set; }
     }
 }

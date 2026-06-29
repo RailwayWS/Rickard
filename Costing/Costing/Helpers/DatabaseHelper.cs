@@ -14,38 +14,32 @@ namespace Costing.Helpers
             {
                 foreach (var emp in staffList)
                 {
-                    //look for emp in db
                     var existingEmployee = await db.Staff.FirstOrDefaultAsync(e => e.Code == emp.Code);
 
                     if (existingEmployee != null)
                     {
-                        // if exists, update
                         existingEmployee.Name = emp.Name;
                         existingEmployee.CostCentre = emp.CostCentre;
                         existingEmployee.JobDescription = emp.JobDescription;
                         existingEmployee.Rate = emp.Rate;
                     }
-                    // add when they dont exist
-                    else { db.Staff.Add(emp); }
+                    else
+                    {
+                        db.Staff.Add(emp);
+                    }
                 }
 
                 // Find people in the DB who are no longer in the Excel sheet
                 var excelCodes = staffList.Select(e => e.Code).ToList();
-
                 var allDbStaff = await db.Staff.ToListAsync();
+                var toDelete = allDbStaff.Where(dbEmp => !excelCodes.Contains(dbEmp.Code)).ToList();
 
-                var employeesToDelete = allDbStaff.Where(dbEmp => !excelCodes.Contains(dbEmp.Code)).ToList();
-
-                foreach (var oldEmp in employeesToDelete)
+                foreach (var oldEmp in toDelete)
                 {
-                    // delete Allocation
-                    var orphanedAllocation = await db.Allocations.FirstOrDefaultAsync(a => a.Code == oldEmp.Code);
-                    if (orphanedAllocation != null)
-                    {
-                        db.Allocations.Remove(orphanedAllocation);
-                    }
+                    // Remove ALL Allocation rows for this employee (multi-WC aware)
+                    var orphanedRows = db.Allocations.Where(a => a.Code == oldEmp.Code);
+                    db.Allocations.RemoveRange(orphanedRows);
 
-                    //delete the employee
                     db.Staff.Remove(oldEmp);
                 }
 
