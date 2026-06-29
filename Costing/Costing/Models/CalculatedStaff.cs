@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Costing.Models
@@ -35,6 +34,9 @@ namespace Costing.Models
 
         [Column("total")]
         public decimal Total { get; set; }
+
+        [NotMapped]
+        public decimal Amount => Efficiency != 0 ? Total / Efficiency : 0m;
 
         public virtual List<CalculatedStaffCost> DynamicCosts { get; set; } = new List<CalculatedStaffCost>();
 

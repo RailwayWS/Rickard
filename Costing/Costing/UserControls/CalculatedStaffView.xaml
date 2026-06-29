@@ -66,8 +66,8 @@
                 <DataGridTextColumn Header="Alloc." Binding="{Binding Allocation, StringFormat={}{0:N2}}" Width="60" Foreground="#2563EB"/>
                 <DataGridTextColumn Header="Eff." Binding="{Binding Efficiency, StringFormat={}{0:N2}}" Width="50" Foreground="#2563EB"/>
                 <DataGridTextColumn Header="Rate" Binding="{Binding Rate, StringFormat={}{0:N2}}" Width="80"/>
-
                 <DataGridTextColumn Header="TOTAL" Binding="{Binding Total, StringFormat={}{0:N2}}" Width="110" FontWeight="Bold" Foreground="#059669"/>
+                <DataGridTextColumn Header="Amount" Binding="{Binding Amount, StringFormat={}{0:N2}}" Width="110" FontWeight="Bold"   Foreground="#7C3AED"/>
             </DataGrid.Columns>
         </DataGrid>
 

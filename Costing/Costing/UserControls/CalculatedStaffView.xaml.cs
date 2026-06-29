@@ -110,10 +110,10 @@ namespace Costing.UserControls
                 txtProgress.Text = "Rebuilding grid columns...";
 
                 // Remove any previously added dynamic columns (keep the first 8 static ones)
-                while (CalculatedDataGrid.Columns.Count > 8)
+                while (CalculatedDataGrid.Columns.Count > 9)
                     CalculatedDataGrid.Columns.RemoveAt(CalculatedDataGrid.Columns.Count - 2);
 
-                int insertIndex = CalculatedDataGrid.Columns.Count - 1; // before TOTAL
+                int insertIndex = CalculatedDataGrid.Columns.Count - 2; // before TOTAL
 
                 foreach (var dbCost in liveDbCosts)
                 {
