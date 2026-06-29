@@ -1,12 +1,13 @@
 using Microsoft.Office.Interop.Excel;
 using System.Data;
 using System.IO;
-using System.Windows;
 using System.Windows.Input;
+using Range = Microsoft.Office.Interop.Excel.Range;
 
 
 
-namespace Costing.Helpers {
+namespace Costing.Helpers
+{
 
     public class ExcelHelper
     {
@@ -66,123 +67,60 @@ namespace Costing.Helpers {
 
         }
 
-        public static List<string> GetCategoriesFromExcel(string filepath)
+        public static Dictionary<string, (decimal RatePerHour, decimal Efficiency)>
+            GetRateAndEfficiencyFromExcel(string filepath)
         {
-            List<string> categories = new List<string>();
-            if (File.Exists(filepath))
+            var result = new Dictionary<string, (decimal, decimal)>(
+                System.StringComparer.OrdinalIgnoreCase);
+
+            if (!File.Exists(filepath)) return result;
+
+            Microsoft.Office.Interop.Excel.Application XLApp = new Microsoft.Office.Interop.Excel.Application();
+            Workbook XLWB = XLApp.Workbooks.Open(filepath);
+            Worksheet XLWS = (Worksheet)XLWB.ActiveSheet;
+
+            int lastUsedRow = XLWS.Cells.Find("*",
+                System.Reflection.Missing.Value, System.Reflection.Missing.Value,
+                System.Reflection.Missing.Value,
+                XlSearchOrder.xlByRows, XlSearchDirection.xlPrevious,
+                false, System.Reflection.Missing.Value, System.Reflection.Missing.Value).Row;
+
+            // Track the last seen code so merged/blank code cells still resolve
+            string currentCode = "";
+            decimal currentRate = 0m;
+
+            for (int row = 2; row <= lastUsedRow; row++)
             {
-                Microsoft.Office.Interop.Excel.Application XLApp = new Microsoft.Office.Interop.Excel.Application();
-                Workbook XLWB = XLApp.Workbooks.Open(filepath);
-                Worksheet XLWS = (Worksheet)XLWB.Worksheets[1];
+                string rawCode = System.Convert.ToString(((Range)XLWS.Cells[row, 1]).Value2);
+                string rawEff = System.Convert.ToString(((Range)XLWS.Cells[row, 29]).Value2); // col AC
 
-                // from S to AA in wages sheet
-                for (int colIndex = 19; colIndex <= 27; colIndex++)
+                // Update current code/rate whenever the code cell has a value
+                if (!string.IsNullOrWhiteSpace(rawCode) &&
+                    !rawCode.Equals("Code", System.StringComparison.OrdinalIgnoreCase))
                 {
-                    var cellvalue = ((Microsoft.Office.Interop.Excel.Range)XLWS.Cells[1, colIndex]).Value2;
+                    currentCode = rawCode.Trim();
 
-                    if (cellvalue != null)
-                    {
-                        categories.Add(Convert.ToString(cellvalue));
-                    }
+                    string rateStr = System.Convert.ToString(((Range)XLWS.Cells[row, 9]).Value2); // col I
+                    decimal.TryParse(rateStr, out currentRate);
                 }
 
-                XLWB.Close();
-                XLApp.Quit();
+                if (string.IsNullOrWhiteSpace(currentCode)) continue;
 
-                // Clean up Excel processes
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(XLWS);
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(XLWB);
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(XLApp);
-            }
-
-            return categories;
-        }
-
-
-        public static List<Costing.Models.CalculatedStaff> GetRawCalculatedStaffFromExcel(string filepath)
-        {
-            List<Costing.Models.CalculatedStaff> staffList = new List<Costing.Models.CalculatedStaff>();
-
-            if (File.Exists(filepath))
-            {
-                Microsoft.Office.Interop.Excel.Application XLApp = new Microsoft.Office.Interop.Excel.Application();
-                Microsoft.Office.Interop.Excel.Workbook XLWB = XLApp.Workbooks.Open(filepath);
-                Microsoft.Office.Interop.Excel.Worksheet XLWS = (Microsoft.Office.Interop.Excel.Worksheet)XLWB.ActiveSheet;
-
-                int lastUsedRow = XLWS.Cells.Find("*", System.Reflection.Missing.Value,
-                                                System.Reflection.Missing.Value, System.Reflection.Missing.Value,
-                                                Microsoft.Office.Interop.Excel.XlSearchOrder.xlByRows, Microsoft.Office.Interop.Excel.XlSearchDirection.xlPrevious,
-                                                false, System.Reflection.Missing.Value, System.Reflection.Missing.Value).Row;
-
-                // temp variables
-                string currentCode = "";
-                string currentName = "";
-                decimal currentRate = 0m;
-
-                for (int rowindex = 2; rowindex <= lastUsedRow; rowindex++)
+                // Only record the row if efficiency is present
+                if (!string.IsNullOrWhiteSpace(rawEff))
                 {
-                    string rawCode = Convert.ToString(((Microsoft.Office.Interop.Excel.Range)XLWS.Cells[rowindex, 1]).Value2);
-                    string rawName = Convert.ToString(((Microsoft.Office.Interop.Excel.Range)XLWS.Cells[rowindex, 2]).Value2); // Columns B
-                    string rawWorkCentre = Convert.ToString(((Microsoft.Office.Interop.Excel.Range)XLWS.Cells[rowindex, 12]).Value2); // Column L
-                    string rawEff = Convert.ToString(((Microsoft.Office.Interop.Excel.Range)XLWS.Cells[rowindex, 29]).Value2); // Column AC
-
-                    // skip if workcewntre and efficiency is empty
-                    if (string.IsNullOrWhiteSpace(rawWorkCentre) && string.IsNullOrWhiteSpace(rawEff))
-                    {
-                        continue;
-                    }
-
-                    // If the code cell has value we update temp vars
-                    if (!string.IsNullOrWhiteSpace(rawCode) || !string.IsNullOrWhiteSpace(rawName))
-                    {
-                        currentCode = rawCode;
-                        currentName = Convert.ToString(((Microsoft.Office.Interop.Excel.Range)XLWS.Cells[rowindex, 2]).Value2);
-
-                        // Parse and remember their rate
-                        string rateStr = Convert.ToString(((Microsoft.Office.Interop.Excel.Range)XLWS.Cells[rowindex, 9]).Value2);
-                        decimal.TryParse(rateStr, out currentRate);
-                    }
-
-                    // PARSE THE REMAINING MATH INPUTS
-                    decimal allocation = 0m;
-                    string rawAlloc = Convert.ToString(((Microsoft.Office.Interop.Excel.Range)XLWS.Cells[rowindex, 16]).Value2);
-                    if (!string.IsNullOrWhiteSpace(rawAlloc))
-                    {
-                        decimal.TryParse(rawAlloc, out allocation);
-                    }
-
-                    decimal efficiency = 1m; // default to 1
-                    if (!string.IsNullOrWhiteSpace(rawEff))
-                    {
-                        decimal.TryParse(rawEff, out efficiency);
-                    }
-
-                    if (string.IsNullOrWhiteSpace(currentCode) || currentCode.Equals("Code", StringComparison.OrdinalIgnoreCase))
-                    {
-                        continue;
-                    }
-
-                    staffList.Add(new Costing.Models.CalculatedStaff
-                    {
-                        Code = currentCode,
-                        Name = currentName,
-                        WorkCentre = rawWorkCentre,
-                        RatePerHour = currentRate,
-                        Allocation = allocation,
-                        Efficiency = efficiency
-                    });
+                    decimal.TryParse(rawEff, out decimal eff);
+                    result[currentCode] = (currentRate, eff);
                 }
-
-                XLWB.Close();
-                XLApp.Quit();
-
-                // Clean up Excel processes
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(XLWS);
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(XLWB);
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(XLApp);
             }
 
-            return staffList;
+            XLWB.Close();
+            XLApp.Quit();
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(XLWS);
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(XLWB);
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(XLApp);
+
+            return result;
         }
 
     }

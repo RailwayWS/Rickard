@@ -1,10 +1,8 @@
-﻿ using Costing.Models;
+﻿using Costing.Data;
+using Costing.Models;
 using Costing.Viewmodels;
-using System;
-using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -39,75 +37,113 @@ namespace Costing.UserControls
                 return;
             }
 
+            if (sender is Button btn) btn.IsEnabled = false;
             Mouse.OverrideCursor = Cursors.Wait;
-            Button actionButton = sender as Button; // disblae button
-
             pnlProgress.Visibility = Visibility.Visible;
             pbCalculations.Value = 0;
             txtProgress.Text = "Reading Excel file...";
 
             try
             {
-                // Extract raw parameters from Excel
-                List<CalculatedStaff> rawRecords = await Task.Run(() => Helpers.ExcelHelper.GetRawCalculatedStaffFromExcel(filePath));
+                // Read RatePerHour + Efficiency from Excel (keyed by Code)
+                var excelData = await Task.Run(() =>
+                    Helpers.ExcelHelper.GetRateAndEfficiencyFromExcel(filePath));
 
-                // Fetch variables from SQL
-                List<StaffCost> liveDbCosts = await Helpers.DatabaseHelper.GetAllStaffCostsAsync();
+                // Load Allocations and Staff costs from DB
+                txtProgress.Text = "Loading allocations from database...";
 
+                List<Allocation> allocations;
+                List<StaffCost> liveDbCosts;
+
+                using (var context = new CostingDbContext())
+                {
+                    // Every row in Allocations = one employee+workcentre assignment
+                    allocations = await context.Allocations
+                        .Where(a => !string.IsNullOrEmpty(a.WorkCentre) && a.Portion > 0)
+                        .ToListAsync();
+
+                    liveDbCosts = await context.StaffCosts.ToListAsync();
+                }
+
+                if (!allocations.Any())
+                {
+                    MessageBox.Show("No allocations found in the database.\n\nPlease assign employees to work centres on the Allocations screen first.",
+                                    "No Allocations", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                // One CalculatedStaff per Allocation row.
+                // RatePerHour + Efficiency  from Excel, everything else from DB.
+                txtProgress.Text = "Building calculation inputs...";
+
+                var rawRecords = new List<CalculatedStaff>();
+
+                foreach (var alloc in allocations)
+                {
+                    excelData.TryGetValue(alloc.Code, out var excelRow);
+                    // If the employee isn't in the Excel sheet we default to 0/1
+                    decimal ratePerHour = excelRow.RatePerHour;
+                    decimal efficiency = excelRow.Efficiency == 0 ? 1m : excelRow.Efficiency;
+
+                    rawRecords.Add(new CalculatedStaff
+                    {
+                        Code = alloc.Code,
+                        Name = alloc.Name,
+                        WorkCentre = alloc.WorkCentre,
+                        RatePerHour = ratePerHour,
+                        Allocation = alloc.Portion ?? 0m,
+                        Efficiency = efficiency
+                    });
+                }
+
+                // Run calculation engine
                 var progressReporter = new Progress<int>(percent =>
                 {
                     pbCalculations.Value = percent;
                     txtProgress.Text = $"Calculating: {percent}%";
                 });
 
-                // Engine runs in background
                 List<CalculatedStaff> finalRecords = await Task.Run(() =>
-                    Helpers.CalculationEngine.ProcessCalculations(rawRecords, liveDbCosts, progressReporter)
-                );
+                    Helpers.CalculationEngine.ProcessCalculations(rawRecords, liveDbCosts, progressReporter));
 
+                //Rebuild dynamic columns
+                txtProgress.Text = "Rebuilding grid columns...";
+
+                // Remove any previously added dynamic columns (keep the first 8 static ones)
                 while (CalculatedDataGrid.Columns.Count > 8)
-                {
                     CalculatedDataGrid.Columns.RemoveAt(CalculatedDataGrid.Columns.Count - 2);
-                }
 
-                txtProgress.Text = "Rebuilding Grid Columns...";
-
-                // add dynamic columns
-                int insertIndex = CalculatedDataGrid.Columns.Count - 1; // Insert right before TOTAL
+                int insertIndex = CalculatedDataGrid.Columns.Count - 1; // before TOTAL
 
                 foreach (var dbCost in liveDbCosts)
                 {
-                    var newColumn = new DataGridTextColumn
+                    CalculatedDataGrid.Columns.Insert(insertIndex, new DataGridTextColumn
                     {
                         Header = dbCost.Category,
-                        // uses indexer in Calculated staff model
                         Binding = new System.Windows.Data.Binding($"[{dbCost.Category}]")
                         {
                             StringFormat = "{0:N2}"
                         },
                         Width = new DataGridLength(80)
-                    };
-
-                    CalculatedDataGrid.Columns.Insert(insertIndex, newColumn);
+                    });
                     insertIndex++;
                 }
 
-                // Update the UI
+                // Push to grid
                 txtProgress.Text = "Rendering final data...";
                 vm.OCCalculatedStaff.Clear();
                 foreach (var record in finalRecords)
-                {
                     vm.OCCalculatedStaff.Add(record);
-                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("An error occurred during calculation:\n\n" + ex.Message, "Calculation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("An error occurred during calculation:\n\n" + ex.Message,
+                                "Calculation Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
-                Mouse.OverrideCursor = Cursors.Arrow;
-                if (sender is Button btn) btn.IsEnabled = true;
+                Mouse.OverrideCursor = null;
+                if (sender is Button finalBtn) finalBtn.IsEnabled = true;
                 pnlProgress.Visibility = Visibility.Collapsed;
             }
         }
@@ -118,7 +154,8 @@ namespace Costing.UserControls
 
             if (vm == null || vm.OCCalculatedStaff.Count == 0)
             {
-                MessageBox.Show("There is no calculated data to save. Please run calculations first.", "No Data", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("There is no calculated data to save. Please run calculations first.",
+                                "No Data", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -126,14 +163,14 @@ namespace Costing.UserControls
 
             try
             {
-                // Push the entire calculated list through our Upsert helper
                 await Helpers.DatabaseHelper.SaveCalculatedStaffToDatabaseAsync(vm.OCCalculatedStaff);
-
-                MessageBox.Show("Calculated data has been synced with the database!", "Save Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Calculated data has been synced with the database!",
+                                "Save Complete", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error saving to SQL Server:\n\n" + ex.Message, "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Error saving to SQL Server:\n\n" + ex.Message,
+                                "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
