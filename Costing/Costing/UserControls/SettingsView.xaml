@@ -19,7 +19,6 @@
                         <Border Name="TabBorder" Padding="15,10" BorderThickness="0,0,0,2" BorderBrush="Transparent" Background="{TemplateBinding Background}" Margin="0,0,5,0">
                             <ContentPresenter x:Name="ContentSite" VerticalAlignment="Center" HorizontalAlignment="Center" ContentSource="Header"/>
                         </Border>
-
                         <ControlTemplate.Triggers>
                             <MultiTrigger>
                                 <MultiTrigger.Conditions>
@@ -28,7 +27,6 @@
                                 </MultiTrigger.Conditions>
                                 <Setter TargetName="TabBorder" Property="Background" Value="#F8FAFC"/>
                             </MultiTrigger>
-
                             <Trigger Property="IsSelected" Value="True">
                                 <Setter TargetName="TabBorder" Property="BorderBrush" Value="#3B82F6"/>
                                 <Setter Property="Foreground" Value="#3B82F6"/>
@@ -38,6 +36,13 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Shared dropdown options for Work Centre Type -->
+        <x:Array x:Key="WorkCentreTypes" Type="sys:String"
+                 xmlns:sys="clr-namespace:System;assembly=mscorlib">
+            <sys:String>Man Hours</sys:String>
+            <sys:String>Machine Hours</sys:String>
+        </x:Array>
     </UserControl.Resources>
 
     <Grid Margin="20">
@@ -58,42 +63,36 @@
                                 <StackPanel>
                                     <TextBlock Text="Costing Database Settings" FontSize="18" FontWeight="SemiBold" Foreground="#0F172A" Margin="0,0,0,5"/>
                                     <TextBlock Text="Configure the local database connection." FontSize="13" Foreground="#64748B" Margin="0,0,0,15"/>
-
                                     <StackPanel Margin="0,5,0,10">
                                         <TextBlock Text="Costing Server Name" Margin="0,0,0,5" FontWeight="Medium" Foreground="#334155"/>
                                         <TextBox Text="{Binding CostingServer, UpdateSourceTrigger=PropertyChanged}" Height="35" VerticalContentAlignment="Center" Padding="5,0"/>
                                     </StackPanel>
-
                                     <StackPanel Margin="0,5,0,5">
                                         <TextBlock Text="Costing Database Name" Margin="0,0,0,5" FontWeight="Medium" Foreground="#334155"/>
                                         <TextBox Text="{Binding CostingDB, UpdateSourceTrigger=PropertyChanged}" Height="35" VerticalContentAlignment="Center" Padding="5,0"/>
                                     </StackPanel>
                                 </StackPanel>
                             </Border>
+
                             <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="20">
                                 <StackPanel>
                                     <TextBlock Text="SYSPRO Connection Settings" FontSize="18" FontWeight="SemiBold" Foreground="#0F172A" Margin="0,0,0,5"/>
                                     <TextBlock Text="Configure the source data connection parameters for pulling ERP tables." FontSize="13" Foreground="#64748B" Margin="0,0,0,15"/>
-
                                     <StackPanel Margin="0,5,0,10">
                                         <TextBlock Text="SYSPRO Server Name" Margin="0,0,0,5" FontWeight="Medium" Foreground="#334155"/>
                                         <TextBox Text="{Binding SysproServer, UpdateSourceTrigger=PropertyChanged}" Height="35" VerticalContentAlignment="Center" Padding="5,0"/>
                                     </StackPanel>
-
                                     <StackPanel Margin="0,5,0,5">
                                         <TextBlock Text="SYSPRO Database Name" Margin="0,0,0,5" FontWeight="Medium" Foreground="#334155"/>
                                         <TextBox Text="{Binding SysproDB, UpdateSourceTrigger=PropertyChanged}" Height="35" VerticalContentAlignment="Center" Padding="5,0"/>
                                     </StackPanel>
                                 </StackPanel>
                             </Border>
-                            
-                            
 
                             <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,20,0,0">
                                 <StackPanel>
                                     <TextBlock Text="Imports" FontSize="18" FontWeight="SemiBold" Foreground="#0F172A" Margin="0,0,0,5"/>
                                     <TextBlock Text="Set default file paths." FontSize="13" Foreground="#64748B" Margin="0,0,0,15"/>
-
                                     <StackPanel Margin="0,5,0,5">
                                         <StackPanel Margin="0,5,0,15">
                                             <TextBlock Text="Temporary Processing Folder" Margin="0,0,0,5" FontWeight="Medium" Foreground="#334155"/>
@@ -108,10 +107,7 @@
                                             <TextBox Text="{Binding ImportPathWages, UpdateSourceTrigger=PropertyChanged}" Height="35" VerticalContentAlignment="Center" Padding="5,0"/>
                                             <Button Grid.Column="1" x:Name="btnBrowsePath" Content="Browse" Click="btnBrowsePath_Click" Width="80" Margin="10,0,0,0"/>
                                         </Grid>
-                                    </StackPanel>
-
-                                    <StackPanel Margin="0,15,0,5">
-                                        <TextBlock Text="Default Costing Sheet Excel Path" Margin="0,0,0,5" FontWeight="Medium" Foreground="#334155"/>
+                                        <TextBlock Text="Default Costing Excel Import Path" Margin="0,15,0,5" FontWeight="Medium" Foreground="#334155"/>
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
@@ -125,7 +121,6 @@
                             </Border>
                         </StackPanel>
                     </ScrollViewer>
-
                     <Button x:Name="btnSaveSettings" Content="Save Configurations" Click="btnSaveSettings_Click" Width="180" Height="40" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#3B82F6" Foreground="White" FontWeight="Bold" Cursor="Hand"/>
                 </Grid>
             </TabItem>
@@ -146,7 +141,6 @@
                             <DataGridTextColumn Header="Password" Binding="{Binding Password}" Width="*"/>
                             <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
                             <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="*"/>
-
                             <DataGridTemplateColumn Header="Action" Width="80">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
@@ -162,22 +156,17 @@
                     <Border x:Name="pnlAddUser" Grid.Row="0" Grid.RowSpan="3" Visibility="Collapsed" Background="#0F172A" CornerRadius="8" Padding="20" HorizontalAlignment="Center" VerticalAlignment="Center" Width="320">
                         <StackPanel>
                             <TextBlock Text="Create New User" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,15" HorizontalAlignment="Center"/>
-
                             <TextBlock Text="Username" Foreground="#CBD5E1" FontWeight="SemiBold" Margin="0,0,0,5"/>
                             <TextBox x:Name="txtNewUserName" Height="32" VerticalContentAlignment="Center" Padding="5,0" Margin="0,0,0,10"/>
-
                             <TextBlock Text="Password" Foreground="#CBD5E1" FontWeight="SemiBold" Margin="0,0,0,5"/>
                             <PasswordBox x:Name="txtNewPassword" Height="32" VerticalContentAlignment="Center" Padding="5,0" Margin="0,0,0,10"/>
-
                             <TextBlock Text="Email Address" Foreground="#CBD5E1" FontWeight="SemiBold" Margin="0,0,0,5"/>
                             <TextBox x:Name="txtNewEmail" Height="32" VerticalContentAlignment="Center" Padding="5,0" Margin="0,0,0,10"/>
-
                             <TextBlock Text="System Role" Foreground="#CBD5E1" FontWeight="SemiBold" Margin="0,0,0,5"/>
                             <ComboBox x:Name="cmbNewRole" Height="32" VerticalContentAlignment="Center" Padding="5,0" Margin="0,0,0,20">
                                 <ComboBoxItem Content="Admin"/>
                                 <ComboBoxItem Content="Standard"/>
                             </ComboBox>
-
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -199,6 +188,7 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
+
                     <Button Grid.Row="0" x:Name="btnSyncWorkCentres" Content="Sync with SYSPRO" Click="btnSyncWorkCentres_Click" Width="180" Height="40" HorizontalAlignment="Left" Margin="0,0,0,10" Background="#F59E0B" Foreground="White" FontWeight="Bold" Cursor="Hand"/>
 
                     <DataGrid Grid.Row="1" x:Name="dgWorkCentres" ItemsSource="{Binding OCWorkCentres}" AutoGenerateColumns="False" CanUserAddRows="False" Background="White" BorderBrush="#E2E8F0" Margin="0,0,0,15">
@@ -208,8 +198,23 @@
                             <DataGridTextColumn Header="CC Code" Binding="{Binding CcCode}" Width="80" IsReadOnly="True" Foreground="#64748B"/>
                             <DataGridTextColumn Header="CC Description" Binding="{Binding CostCentreDesc}" Width="*" IsReadOnly="True"/>
 
-                            <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="100"/>
-                            <DataGridTextColumn Header="Staff Count" Binding="{Binding Staff}" Width="100"/>
+                            <!-- Type dropdown — Man Hours or Machine Hours -->
+                            <DataGridTemplateColumn Header="Type" Width="140">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Type}" VerticalAlignment="Center" Padding="4,0"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox SelectedItem="{Binding Type, UpdateSourceTrigger=PropertyChanged}"
+                                                  ItemsSource="{StaticResource WorkCentreTypes}"
+                                                  VerticalContentAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTextColumn Header="Staff Count" Binding="{Binding Staff}" Width="100" IsReadOnly="True"/>
                         </DataGrid.Columns>
                     </DataGrid>
 

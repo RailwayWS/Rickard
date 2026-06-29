@@ -4,6 +4,7 @@ using Costing.Other;
 using Costing.Viewmodels;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -56,7 +57,6 @@ namespace Costing.UserControls
                 Mouse.OverrideCursor = Cursors.Wait;
                 try
                 {
-
                     vmSettings.CostingServer = Costing.Properties.Settings.Default.CostingServer;
                     vmSettings.CostingDB = Costing.Properties.Settings.Default.CostingDB;
 
@@ -95,7 +95,6 @@ namespace Costing.UserControls
             if (vmSettings == null) return;
             try
             {
-
                 Costing.Properties.Settings.Default.CostingServer = vmSettings.CostingServer;
                 Costing.Properties.Settings.Default.CostingDB = vmSettings.CostingDB;
 
@@ -154,8 +153,9 @@ namespace Costing.UserControls
 
             if (dpo is DataGridRow dgr && dgr.Item is LoginUser user)
             {
-                var confirmResult = MessageBox.Show($"Are you sure you want to permanently delete the user '{user.UserName}'?","Confirm Deletion",MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                var confirmResult = MessageBox.Show($"Are you sure you want to permanently delete the user '{user.UserName}'?", "Confirm Deletion", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
+                // Only remove if the user confirmed
                 if (confirmResult == MessageBoxResult.Yes)
                 {
                     vmSettings.OclUsers.Remove(user);
@@ -236,6 +236,7 @@ namespace Costing.UserControls
         #region Tab 3: Work Centres Logic
         private async void FillWorkCentres()
         {
+            // Only query the database once. Let EF Core handle memory cache after that.
             if (vmSettings.OCWorkCentres == null || !vmSettings.OCWorkCentres.Any())
             {
                 Mouse.OverrideCursor = Cursors.Wait;
@@ -244,6 +245,20 @@ namespace Costing.UserControls
                     // Load into EF Core Local tracking
                     await _context.WorkCentres.LoadAsync();
                     vmSettings.OCWorkCentres = _context.WorkCentres.Local.ToObservableCollection();
+
+                    // Pull a live count of staff per work centre from the Allocations table
+                    var staffCounts = await _context.Allocations
+                        .Where(a => a.WorkCentre != null)
+                        .GroupBy(a => a.WorkCentre)
+                        .Select(g => new { WorkCentre = g.Key, Count = g.Count() })
+                        .ToListAsync();
+
+                    // Stamp each work centre with its live staff count
+                    foreach (var wc in vmSettings.OCWorkCentres)
+                    {
+                        var match = staffCounts.FirstOrDefault(s => s.WorkCentre == wc.WcCode);
+                        wc.Staff = match != null ? match.Count.ToString() : "0";
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -289,7 +304,7 @@ namespace Costing.UserControls
                                 WcDescription = sysWc.WorkCentreDesc,
                                 CcCode = sysWc.CostCentreCode,
                                 CostCentreDesc = sysWc.CostCentreDesc,
-                                Staff = "0" 
+                                Staff = "0"
                             });
                         }
                         else
