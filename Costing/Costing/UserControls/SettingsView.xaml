@@ -37,6 +37,90 @@
             </Setter>
         </Style>
 
+        <Style x:Key="ModernHeaderButton" TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="6" 
+                                Padding="10,0">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.15" Direction="270" Color="Black"/>
+                            </Border.Effect>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Opacity" Value="0.7"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SecondaryButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#64748B"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#F1F5F9"/>
+                                <Setter Property="Foreground" Value="#334155"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="GridActionDeleteBtnStyle" TargetType="Button">
+            <Setter Property="Background" Value="#FEF2F2"/>
+            <Setter Property="Foreground" Value="#EF4444"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="8" 
+                                Padding="12,4"
+                                Margin="0,4,0,4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#EF4444"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <x:Array x:Key="WorkCentreTypes" Type="sys:String"
                  xmlns:sys="clr-namespace:System;assembly=mscorlib">
             <sys:String>Man Hours</sys:String>
@@ -104,7 +188,7 @@
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <TextBox Text="{Binding ImportPathWages, UpdateSourceTrigger=PropertyChanged}" Height="35" VerticalContentAlignment="Center" Padding="5,0"/>
-                                            <Button Grid.Column="1" x:Name="btnBrowsePath" Content="Browse" Click="btnBrowsePath_Click" Width="80" Margin="10,0,0,0"/>
+                                            <Button Grid.Column="1" x:Name="btnBrowsePath" Content="Browse" Click="btnBrowsePath_Click" Style="{StaticResource SecondaryButton}" Width="80" Margin="10,0,0,0"/>
                                         </Grid>
                                         <TextBlock Text="Default Costing Excel Import Path" Margin="0,15,0,5" FontWeight="Medium" Foreground="#334155"/>
                                         <Grid>
@@ -113,14 +197,15 @@
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <TextBox Text="{Binding ImportPathCosting, UpdateSourceTrigger=PropertyChanged}" Height="35" VerticalContentAlignment="Center" Padding="5,0"/>
-                                            <Button Grid.Column="1" x:Name="btnBrowseCostingPath" Content="Browse" Click="btnBrowseCostingPath_Click" Width="80" Margin="10,0,0,0"/>
+                                            <Button Grid.Column="1" x:Name="btnBrowseCostingPath" Content="Browse" Click="btnBrowseCostingPath_Click" Style="{StaticResource SecondaryButton}" Width="80" Margin="10,0,0,0"/>
                                         </Grid>
                                     </StackPanel>
                                 </StackPanel>
                             </Border>
                         </StackPanel>
                     </ScrollViewer>
-                    <Button x:Name="btnSaveSettings" Content="Save Configurations" Click="btnSaveSettings_Click" Width="180" Height="40" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#3B82F6" Foreground="White" FontWeight="Bold" Cursor="Hand"/>
+
+                    <Button x:Name="btnSaveSettings" Content="Save Configurations" Click="btnSaveSettings_Click" Style="{StaticResource ModernHeaderButton}" Width="180" Height="40" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#3B82F6"/>
                 </Grid>
             </TabItem>
 
@@ -132,7 +217,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Button Grid.Row="0" x:Name="btnShowAddUserForm" Content="+ Add New User" Click="btnShowAddUserForm_Click" Width="140" Height="35" HorizontalAlignment="Left" Margin="0,0,0,10" Background="#3B82F6" Foreground="White" FontWeight="Bold" Cursor="Hand"/>
+                    <Button Grid.Row="0" x:Name="btnShowAddUserForm" Content="+ Add New User" Click="btnShowAddUserForm_Click" Style="{StaticResource ModernHeaderButton}" Width="140" Height="35" HorizontalAlignment="Left" Margin="0,0,0,10" Background="#3B82F6"/>
 
                     <DataGrid Grid.Row="1" x:Name="dgUsers" ItemsSource="{Binding OclUsers}" AutoGenerateColumns="False" CanUserAddRows="False" Background="White" BorderBrush="#E2E8F0" Margin="0,0,0,15">
                         <DataGrid.Columns>
@@ -140,19 +225,19 @@
                             <DataGridTextColumn Header="Password" Binding="{Binding Password}" Width="*"/>
                             <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
                             <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="*"/>
-                            <DataGridTemplateColumn Header="Action" Width="80">
+                            <DataGridTemplateColumn Header="Action" Width="100">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Content="Delete" Click="btDeleteUser_Click" Foreground="#EF4444" Background="Transparent" BorderThickness="0" Cursor="Hand"/>
+                                        <Button Content="Delete" Click="btDeleteUser_Click" Style="{StaticResource GridActionDeleteBtnStyle}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <Button Grid.Row="2" x:Name="btnSaveUsers" Content="Save Users" Click="btnSaveUsers_Click" Width="180" Height="40" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#10B981" Foreground="White" FontWeight="Bold" Cursor="Hand"/>
+                    <Button Grid.Row="2" x:Name="btnSaveUsers" Content="Save Users" Click="btnSaveUsers_Click" Style="{StaticResource ModernHeaderButton}" Width="180" Height="40" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#10B981"/>
 
-                    <Border x:Name="pnlAddUser" Grid.Row="0" Grid.RowSpan="3" Visibility="Collapsed" Background="#0F172A" CornerRadius="8" Padding="20" HorizontalAlignment="Center" VerticalAlignment="Center" Width="320">
+                    <Border x:Name="pnlAddUser" Grid.Row="0" Grid.RowSpan="3" Visibility="Collapsed" Background="#1E293B" CornerRadius="8" Padding="20" HorizontalAlignment="Center" VerticalAlignment="Center" Width="320">
                         <StackPanel>
                             <TextBlock Text="Create New User" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,15" HorizontalAlignment="Center"/>
                             <TextBlock Text="Username" Foreground="#CBD5E1" FontWeight="SemiBold" Margin="0,0,0,5"/>
@@ -172,8 +257,8 @@
                                     <ColumnDefinition Width="10"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Button Grid.Column="0" Content="Cancel" Click="btnCancelAddUser_Click" Background="Transparent" BorderBrush="#94A3B8" BorderThickness="1" Foreground="#94A3B8" Padding="0,8" Cursor="Hand"/>
-                                <Button Grid.Column="2" Content="Confirm" Click="btnConfirmAddUser_Click" Background="#3B82F6" BorderThickness="0" Foreground="White" FontWeight="Bold" Padding="0,8" Cursor="Hand"/>
+                                <Button Grid.Column="0" Content="Cancel" Click="btnCancelAddUser_Click" Style="{StaticResource SecondaryButton}" Height="36"/>
+                                <Button Grid.Column="2" Content="Confirm" Click="btnConfirmAddUser_Click" Style="{StaticResource ModernHeaderButton}" Background="#3B82F6" Height="36"/>
                             </Grid>
                         </StackPanel>
                     </Border>
@@ -188,7 +273,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Button Grid.Row="0" x:Name="btnSyncWorkCentres" Content="Sync with SYSPRO" Click="btnSyncWorkCentres_Click" Width="180" Height="40" HorizontalAlignment="Left" Margin="0,0,0,10" Background="#F59E0B" Foreground="White" FontWeight="Bold" Cursor="Hand"/>
+                    <Button Grid.Row="0" x:Name="btnSyncWorkCentres" Content="Sync with SYSPRO" Click="btnSyncWorkCentres_Click" Style="{StaticResource ModernHeaderButton}" Width="180" Height="40" HorizontalAlignment="Left" Margin="0,0,0,10" Background="#F59E0B"/>
 
                     <DataGrid Grid.Row="1" x:Name="dgWorkCentres" ItemsSource="{Binding OCWorkCentres}" AutoGenerateColumns="False" CanUserAddRows="False" Background="White" BorderBrush="#E2E8F0" Margin="0,0,0,15">
                         <DataGrid.Columns>
@@ -197,7 +282,6 @@
                             <DataGridTextColumn Header="CC Code" Binding="{Binding CcCode}" Width="80" IsReadOnly="True" Foreground="#64748B"/>
                             <DataGridTextColumn Header="CC Description" Binding="{Binding CostCentreDesc}" Width="*" IsReadOnly="True"/>
 
-                            <!-- Type dropdown — Man Hours or Machine Hours -->
                             <DataGridTemplateColumn Header="Type" Width="140">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
@@ -217,7 +301,7 @@
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <Button Grid.Row="2" x:Name="btnSaveWorkCentres" Content="Save Work Centres" Click="btnSaveWorkCentres_Click" Width="180" Height="40" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#10B981" Foreground="White" FontWeight="Bold" Cursor="Hand"/>
+                    <Button Grid.Row="2" x:Name="btnSaveWorkCentres" Content="Save Work Centres" Click="btnSaveWorkCentres_Click" Style="{StaticResource ModernHeaderButton}" Width="180" Height="40" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#10B981"/>
                 </Grid>
             </TabItem>
 

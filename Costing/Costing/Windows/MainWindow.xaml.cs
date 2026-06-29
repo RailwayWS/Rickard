@@ -1,17 +1,7 @@
 ﻿using Costing.Helpers;
 using Costing.UserControls;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Xml.Serialization;
 
 namespace Costing.Windows
 {
@@ -24,6 +14,7 @@ namespace Costing.Windows
         {
             InitializeComponent();
             ApplyRoleSecurity();
+            MainFrame.Content = new UserControls.AllocationsView();
         }
 
         private void btStaffCosts_Click(object sender, RoutedEventArgs e)

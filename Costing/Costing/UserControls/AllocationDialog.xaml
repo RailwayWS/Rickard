@@ -74,12 +74,12 @@
                                          Tag="{Binding}"/>
 
                                 <Button Grid.Column="2"
-                                        Content="✕"
-                                        Width="28" Height="28"
+                                        Content="X"
+                                        Width="30" Height="30"
                                         Background="#FEE2E2"
                                         Foreground="#DC2626"
                                         BorderThickness="0"
-                                        FontSize="11"
+                                        FontSize="12"
                                         Cursor="Hand"
                                         Tag="{Binding}"
                                         Click="BtnRemoveRow_Click"

@@ -11,16 +11,51 @@
         WindowState="Maximized">
 
     <Window.Resources>
-        <Style x:Key="NavButton" TargetType="Button">
+        <Style x:Key="NavTabStyle" TargetType="RadioButton">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#CBD5E1"/>
+            <Setter Property="Foreground" Value="#94A3B8"/>
             <Setter Property="FontSize" Value="15"/>
-            <Setter Property="FontWeight" Value="Medium"/>
-            <Setter Property="Padding" Value="25,15,15,15"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="21,16,15,16"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="BorderThickness" Value="4,0,0,0"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Foreground" Value="#3B82F6"/>
+                                <Setter Property="BorderBrush" Value="#3B82F6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="NavActionStyle" TargetType="Button">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#94A3B8"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="25,16,15,16"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="ForceCursor" Value="True"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -30,8 +65,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#334155"/>
-                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="Foreground" Value="#FCA5A5"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -56,24 +90,24 @@
                     </Grid.RowDefinitions>
 
                     <TextBlock Grid.Row="0" Text="COSTING" Foreground="White" FontSize="18" FontWeight="Bold" 
-               HorizontalAlignment="Center" Margin="0,40,0,30"/>
+                               HorizontalAlignment="Center" Margin="0,40,0,40"/>
 
                     <StackPanel Grid.Row="1">
-                        <Button x:Name="btAllocations" Content="Allocations" Click="btAllocations_Click" Style="{StaticResource NavButton}"/>
-                        <Button x:Name="btStaffCosts" Content="Staff Costs" Click="btStaffCosts_Click" Style="{StaticResource NavButton}"/>
-                        <Button x:Name="btStaff" Content="Staff Management" Click="btStaff_Click" Style="{StaticResource NavButton}"/>
-                        <Button x:Name="btSettings" Content="Settings" Click="btSettings_Click" Style="{StaticResource NavButton}"/>
+                        <RadioButton x:Name="btAllocations" GroupName="NavMenu" Content="Allocations" Click="btAllocations_Click" Style="{StaticResource NavTabStyle}" IsChecked="True"/>
+                        <RadioButton x:Name="btStaffCosts" GroupName="NavMenu" Content="Staff Costs" Click="btStaffCosts_Click" Style="{StaticResource NavTabStyle}"/>
+                        <RadioButton x:Name="btStaff" GroupName="NavMenu" Content="Staff Management" Click="btStaff_Click" Style="{StaticResource NavTabStyle}"/>
+                        <RadioButton x:Name="btSettings" GroupName="NavMenu" Content="Settings" Click="btSettings_Click" Style="{StaticResource NavTabStyle}"/>
                     </StackPanel>
 
                     <Button Grid.Row="2" x:Name="btLogout" Content="Logout" Click="btLogout_Click" 
-            Style="{StaticResource NavButton}" Margin="0,0,0,20" Foreground="#FCA5A5"/>
+                            Style="{StaticResource NavActionStyle}" Margin="0,0,0,30" Foreground="#F87171"/>
                 </Grid>
-                
             </Border>
+
             <ContentControl x:Name="SecondarySidebarFrame" Visibility="Collapsed"/>
         </Grid>
 
-        <ContentControl x:Name="MainFrame"  Background="#F8FAFC"/>
+        <ContentControl x:Name="MainFrame" Background="#F8FAFC"/>
 
     </DockPanel>
 </Window>

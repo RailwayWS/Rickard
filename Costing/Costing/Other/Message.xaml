@@ -5,81 +5,100 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Costing.Other"
         mc:Ignorable="d"
-        Title="Message" Height="300" Width="400"
+        Title="Message" Width="420" SizeToContent="Height"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         AllowsTransparency="True"
-        Background="Transparent">
-
-
+        Background="Transparent"
+        Topmost="True">
 
     <Window.Resources>
-        <Style x:Key="RoundCorner" TargetType="{x:Type Button}">
-
+        <Style x:Key="ModernDialogButton" TargetType="Button">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="16,8"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-
-                        <Border x:Name="border" CornerRadius="5" BorderBrush="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}" BorderThickness="1">
-
-                            <ContentPresenter HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"
-                                          TextElement.FontWeight="Normal" Margin="10,10" >
-                            </ContentPresenter>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center" 
+                                              Margin="{TemplateBinding Padding}"/>
                         </Border>
-
-
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Opacity" Value="0.7"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
-
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="White" BorderThickness="1" BorderBrush="Black">
-        <StackPanel Margin="0,0,0,-1">
-            <Menu Background="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}" DockPanel.Dock="Top" Width="400" Height="35" >
-            <Menu.Resources>
-                <Style  TargetType="Border">
-                    <Setter Property="CornerRadius"  Value="15,15,0,0"/>
-                </Style>
-            </Menu.Resources>
-            <Label Content="Message" FontFamily="Segoe UI" Foreground="White" HorizontalAlignment="Center"  />
+    <Border Background="White" CornerRadius="8" Margin="20" BorderBrush="#E2E8F0" BorderThickness="1">
 
-        </Menu>
-        
-      
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="200"/>
-                   
-                    <RowDefinition Height="60"/>
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="20" ShadowDepth="6" Opacity="0.15" Direction="270" Color="Black"/>
+        </Border.Effect>
 
+        <Grid Margin="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-                </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" 
+                       Text="Notification" 
+                       FontFamily="Segoe UI" 
+                       FontSize="18" 
+                       FontWeight="Bold" 
+                       Foreground="#1E293B" 
+                       Margin="0,0,0,12"/>
 
+            <TextBlock Grid.Row="1" 
+                       Text="{Binding Path=DataContext.message}" 
+                       FontFamily="Segoe UI" 
+                       FontSize="14" 
+                       Foreground="#475569" 
+                       TextWrapping="Wrap" 
+                       LineHeight="20"
+                       MinHeight="40"
+                       Margin="0,0,0,24"/>
 
-            
-            <TextBlock Text="{Binding Path=DataContext.message}" Grid.Row="0" FontFamily="Segoe UI" Foreground="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}"  TextWrapping="Wrap" Margin="10,0,10,0"
-                   FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" Width="Auto" Height="Auto">
-               
-            </TextBlock> 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10" Grid.Row="1">
-                <Button x:Name="btOK"  IsDefault="True" HorizontalAlignment="Center" Margin="0,0,10,0" 
-                    Width="60" Height="35" Content="OK" Background="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}" Foreground="White"  Click="btok_Click">
-                    
-                </Button>
-                <Button x:Name="btcancel" HorizontalAlignment="Center" Width="60" Height="35" Content="Cancel" Background="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}" Foreground="White" Click="btcancel_Click">
-                   
-                </Button>
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+
+                <Button x:Name="btcancel" 
+                        Content="Cancel" 
+                        Click="btcancel_Click" 
+                        Style="{StaticResource ModernDialogButton}" 
+                        Background="Transparent" 
+                        BorderBrush="#CBD5E1" 
+                        BorderThickness="1" 
+                        Foreground="#64748B" 
+                        Margin="0,0,12,0" 
+                        MinWidth="80"/>
+
+                <Button x:Name="btOK" 
+                        Content="OK" 
+                        Click="btok_Click" 
+                        IsDefault="True" 
+                        Style="{StaticResource ModernDialogButton}" 
+                        Background="#3B82F6" 
+                        BorderThickness="0" 
+                        Foreground="White" 
+                        MinWidth="80"/>
+
             </StackPanel>
-            </Grid>
-        </StackPanel>
-
+        </Grid>
     </Border>
-
-
-
-
-
 </Window>

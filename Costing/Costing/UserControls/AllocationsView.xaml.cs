@@ -3,10 +3,6 @@ using Costing.Models;
 using Costing.Other;
 using Costing.Viewmodels;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -123,6 +119,7 @@ namespace Costing.UserControls
                 await RefreshSingleRowAsync(employeeCode);
 
                 Message msg = new Message($"Allocations for {employeeName} saved successfully!");
+                Mouse.OverrideCursor = null;
                 msg.ShowDialog();
             }
             catch (Exception ex)
@@ -131,7 +128,7 @@ namespace Costing.UserControls
             }
             finally
             {
-                Mouse.OverrideCursor = null;
+
             }
         }
 

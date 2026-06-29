@@ -8,6 +8,39 @@
              d:DesignHeight="700" d:DesignWidth="1200"
              Background="White">
 
+    <UserControl.Resources>
+        <Style x:Key="ModernHeaderButton" TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="6" 
+                                Padding="10,0">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.15" Direction="270" Color="Black"/>
+                            </Border.Effect>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Opacity" Value="0.7"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
     <UserControl.DataContext>
         <vm:CalculatedStaffViewModel/>
     </UserControl.DataContext>
@@ -22,11 +55,17 @@
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
             <TextBlock Text="Calculated Data" FontSize="24" FontWeight="SemiBold" Foreground="#1E293B" VerticalAlignment="Center"/>
 
-            <Button Content="Run Calculations" Click="btnRunCalculations_Click" Margin="20,0,0,0" Width="150" Height="35" 
-                    Background="#3B82F6" Foreground="White" BorderThickness="0" Cursor="Hand" ForceCursor="True"/>
+            <Button Content="Run Calculations" 
+                    Click="btnRunCalculations_Click" 
+                    Style="{StaticResource ModernHeaderButton}"
+                    Background="#3B82F6" 
+                    Margin="20,0,0,0" Width="150" Height="35"/>
 
-            <Button Content="Save to Database" Click="btnSaveToDb_Click" Margin="20,0,0,0" Width="150" Height="35" 
-                    Background="#10B981" Foreground="White" BorderThickness="0" Cursor="Hand" ForceCursor="True"/>
+            <Button Content="Save to Database" 
+                    Click="btnSaveToDb_Click" 
+                    Style="{StaticResource ModernHeaderButton}"
+                    Background="#10B981" 
+                    Margin="15,0,0,0" Width="150" Height="35"/>
         </StackPanel>
 
         <StackPanel x:Name="pnlProgress" Grid.Row="1" Visibility="Collapsed" Margin="0,0,0,20">
