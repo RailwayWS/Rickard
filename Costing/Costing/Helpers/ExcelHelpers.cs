@@ -123,5 +123,28 @@ namespace Costing.Helpers
             return result;
         }
 
+
+        public static void ExportAuditToExcel(IEnumerable<Costing.Models.AuditLog> auditData, string filePath)
+        {
+            var lines = new List<string>();
+
+            lines.Add("Code;Employee Name;Snapshot Date;Snapshot Name;Bonus;UIF;SDL;Bonus Rate;UIF Rate;SDL Rate");
+
+            foreach (var log in auditData)
+            {
+                string safeName = log.EmployeeName?.Replace(";", " ") ?? "";
+                string safeDate = log.SnapshotDate.ToString("yyyy-MM-dd HH:mm");
+
+                string bonusRate = log.BonusRate.HasValue ? log.BonusRate.Value.ToString("0.00000") : "";
+                string uifRate = log.UifRate.HasValue ? log.UifRate.Value.ToString("0.00000") : "";
+                string sdlRate = log.SdlRate.HasValue ? log.SdlRate.Value.ToString("0.00000") : "";
+
+                string row = $"{log.Code};{safeName};{safeDate};{log.SnapshotName};{log.Bonus:0.00};{log.UIF:0.00};{log.SDL:0.00};{bonusRate};{uifRate};{sdlRate}";
+                lines.Add(row);
+            }
+
+            System.IO.File.WriteAllLines(filePath, lines);
+        }
+
     }
 }

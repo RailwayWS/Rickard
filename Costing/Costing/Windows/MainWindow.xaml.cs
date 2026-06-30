@@ -63,6 +63,7 @@ namespace Costing.Windows
                 // BASIC USER
                 btStaffCosts.Visibility = Visibility.Collapsed;
                 btStaff.Visibility = Visibility.Collapsed;
+                btAuditLogs.Visibility = Visibility.Collapsed;
                 btSettings.Visibility = Visibility.Collapsed;
 
                 // TODO: Load the allocations view immediately
@@ -72,6 +73,7 @@ namespace Costing.Windows
                 // ADMIN
                 btStaffCosts.Visibility = Visibility.Visible;
                 btStaff.Visibility = Visibility.Visible;
+                btAuditLogs.Visibility = Visibility.Visible;
                 btSettings.Visibility = Visibility.Visible;
             }
         }
@@ -81,9 +83,15 @@ namespace Costing.Windows
             MainFrame.Content = new UserControls.AllocationsView();
         }
 
+
         private void btSettings_Click(object sender, RoutedEventArgs e)
         {
             MainFrame.Content = new Costing.UserControls.SettingsView();
+        }
+
+        private void btAuditLogs_Click(object sender, RoutedEventArgs e)
+        {
+            MainFrame.Content = new UserControls.AuditLogsView();
         }
 
         public void ShowSettingsView()

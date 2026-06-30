@@ -96,8 +96,11 @@
                         <RadioButton x:Name="btAllocations" GroupName="NavMenu" Content="Allocations" Click="btAllocations_Click" Style="{StaticResource NavTabStyle}" IsChecked="True"/>
                         <RadioButton x:Name="btStaffCosts" GroupName="NavMenu" Content="Staff Costs" Click="btStaffCosts_Click" Style="{StaticResource NavTabStyle}"/>
                         <RadioButton x:Name="btStaff" GroupName="NavMenu" Content="Staff Management" Click="btStaff_Click" Style="{StaticResource NavTabStyle}"/>
+                        <RadioButton x:Name="btAuditLogs" GroupName="NavMenu" Content="Audit Logs" Click="btAuditLogs_Click" Style="{StaticResource NavTabStyle}"/>
                         <RadioButton x:Name="btSettings" GroupName="NavMenu" Content="Settings" Click="btSettings_Click" Style="{StaticResource NavTabStyle}"/>
                     </StackPanel>
+
+
 
                     <Button Grid.Row="2" x:Name="btLogout" Content="Logout" Click="btLogout_Click" 
                             Style="{StaticResource NavActionStyle}" Margin="0,0,0,30" Foreground="#F87171"/>

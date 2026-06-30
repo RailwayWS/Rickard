@@ -66,6 +66,12 @@
                     Style="{StaticResource ModernHeaderButton}"
                     Background="#10B981" 
                     Margin="15,0,0,0" Width="150" Height="35"/>
+
+            <Button Content="Record Audit Log" 
+                    Click="btnRecordAudit_Click" 
+                    Style="{StaticResource ModernHeaderButton}"
+                    Background="#8B5CF6" 
+                    Margin="15,0,0,0" Width="150" Height="35"/>
         </StackPanel>
 
         <StackPanel x:Name="pnlProgress" Grid.Row="1" Visibility="Collapsed" Margin="0,0,0,20">
@@ -109,6 +115,38 @@
                 <DataGridTextColumn Header="Amount" Binding="{Binding Amount, StringFormat={}{0:N2}}" Width="110" FontWeight="Bold"   Foreground="#7C3AED"/>
             </DataGrid.Columns>
         </DataGrid>
+
+        <Border x:Name="pnlAuditInput" Grid.Row="0" Grid.RowSpan="3" Visibility="Collapsed" Background="#1E293B" CornerRadius="8" Padding="20" HorizontalAlignment="Center" VerticalAlignment="Center" Width="340">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="25" ShadowDepth="10" Opacity="0.5" Direction="270" Color="Black"/>
+            </Border.Effect>
+            <StackPanel>
+                <TextBlock Text="Record Audit Log" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,15" HorizontalAlignment="Center"/>
+                <TextBlock Text="Snapshot Name (e.g. Q1 2026 Audit)" Foreground="#CBD5E1" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                <TextBox x:Name="txtAuditName" Height="36" VerticalContentAlignment="Center" Padding="5,0" Margin="0,0,0,24"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Content="Cancel" Click="btnCancelAudit_Click" Background="Transparent" BorderBrush="#334155" BorderThickness="1" Foreground="#94A3B8" Height="36" Cursor="Hand">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="4"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                    <Button Grid.Column="2" Content="Confirm" Click="btnConfirmAudit_Click" Background="#8B5CF6" BorderThickness="0" Foreground="White" Height="36" FontWeight="Bold" Cursor="Hand">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="4"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </Grid>
+            </StackPanel>
+        </Border>
 
     </Grid>
 </UserControl>

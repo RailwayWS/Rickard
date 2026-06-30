@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Costing.Models;
 using Microsoft.EntityFrameworkCore;
-using Costing.Models;
 
 namespace Costing.Data
 {
@@ -25,6 +20,8 @@ namespace Costing.Data
         public DbSet<WorkCentre> WorkCentres { get; set; }
 
         public DbSet<LoginUser> LoginUsers { get; set; }
+
+        public DbSet<AuditLog> AuditLogs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

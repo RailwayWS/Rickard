@@ -16,6 +16,7 @@ namespace Costing.UserControls
             InitializeComponent();
         }
 
+        #region Calculations
         private async void btnRunCalculations_Click(object sender, RoutedEventArgs e)
         {
             var vm = this.DataContext as CalculatedStaffViewModel;
@@ -179,5 +180,120 @@ namespace Costing.UserControls
                 Mouse.OverrideCursor = null;
             }
         }
+
+        # endregion
+
+        #region Audit function
+
+        private void btnRecordAudit_Click(object sender, RoutedEventArgs e)
+        {
+            var vm = this.DataContext as CalculatedStaffViewModel;
+
+            // Prevent users from trying to log an empty screen
+            if (vm == null || vm.OCCalculatedStaff.Count == 0)
+            {
+                MessageBox.Show("Please run calculations first. There is no data to record.", "No Data", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            // Clear the text box and show the overlay card
+            txtAuditName.Text = "";
+            pnlAuditInput.Visibility = Visibility.Visible;
+        }
+
+        private void btnCancelAudit_Click(object sender, RoutedEventArgs e)
+        {
+            pnlAuditInput.Visibility = Visibility.Collapsed;
+        }
+
+        private async void btnConfirmAudit_Click(object sender, RoutedEventArgs e)
+        {
+            string snapshotName = txtAuditName.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(snapshotName))
+            {
+                MessageBox.Show("Please enter a valid snapshot name.", "Required", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var vm = this.DataContext as CalculatedStaffViewModel;
+            if (vm == null || vm.OCCalculatedStaff.Count == 0) return;
+
+            // Hide the panel and show the loading cursor
+            pnlAuditInput.Visibility = Visibility.Collapsed;
+            Mouse.OverrideCursor = Cursors.Wait;
+
+            try
+            {
+                using (var context = new CostingDbContext())
+                {
+                    // Grab the current rules so we can record the rate (e.g. 1.5%)
+                    // that was actually used to produce this snapshot's amounts.
+                    var liveDbCosts = await context.StaffCosts.ToListAsync();
+
+                    decimal? bonusRate = liveDbCosts
+                        .FirstOrDefault(c => c.Category.Equals("Bonus", StringComparison.OrdinalIgnoreCase))
+                        ?.Value;
+                    decimal? uifRate = liveDbCosts
+                        .FirstOrDefault(c => c.Category.Equals("UIF", StringComparison.OrdinalIgnoreCase))
+                        ?.Value;
+                    decimal? sdlRate = liveDbCosts
+                        .FirstOrDefault(c => c.Category.Equals("SDL", StringComparison.OrdinalIgnoreCase))
+                        ?.Value;
+
+                    DateTime exactTimestamp = DateTime.Now;
+                    var newSnapshots = new List<AuditLog>();
+
+                    // Loop through the data currently visible on the grid
+                    foreach (var emp in vm.OCCalculatedStaff)
+                    {
+                        var snap = new AuditLog
+                        {
+                            Code = emp.Code,
+                            EmployeeName = emp.Name,
+                            SnapshotDate = exactTimestamp,
+                            SnapshotName = snapshotName,
+
+                            // Use the Indexer from CalculatedStaff.cs to grab exactly the 3 categories
+                            Bonus = emp["Bonus"],
+                            UIF = emp["UIF"],
+                            SDL = emp["SDL"],
+
+                            // The rate used to calculate the above amounts, captured
+                            // at snapshot time so it stays accurate even if rates
+                            // change later.
+                            BonusRate = bonusRate,
+                            UifRate = uifRate,
+                            SdlRate = sdlRate
+                        };
+
+                        newSnapshots.Add(snap);
+                    }
+
+                    // Save all rows to the new database table
+                    context.AuditLogs.AddRange(newSnapshots);
+                    await context.SaveChangesAsync();
+                }
+
+                MessageBox.Show($"Audit log '{snapshotName}' successfully recorded!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                string errorMsg = ex.Message;
+
+                if (ex.InnerException != null)
+                {
+                    errorMsg += "\n\nINNER EXCEPTION:\n" + ex.InnerException.Message;
+                }
+
+                MessageBox.Show("Error recording audit log:\n\n" + errorMsg, "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+            }
+        }
+
+        #endregion
     }
 }
