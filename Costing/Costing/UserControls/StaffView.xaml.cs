@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Costing.Helpers;
+using Costing.Models;
+using Costing.Viewmodels;
 using System.Data;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Costing.Viewmodels;
-using Costing.Models;
-using Costing.Helpers;
 
 namespace Costing.UserControls
 {
@@ -43,7 +42,7 @@ namespace Costing.UserControls
 
             Mouse.OverrideCursor = Cursors.Wait;
 
-             try
+            try
             {
                 vm.OCStaff.Clear();
 
@@ -75,7 +74,7 @@ namespace Costing.UserControls
         }
 
 
-        private async void btnSaveToDb_Click(object sender, RoutedEventArgs e) 
+        private async void btnSaveToDb_Click(object sender, RoutedEventArgs e)
         {
             var vm = this.DataContext as StaffViewModel;
 
@@ -90,13 +89,39 @@ namespace Costing.UserControls
 
             try
             {
+                var employeesToDelete = await Helpers.DatabaseHelper.GetEmployeesToDeleteAsync(vm.OCStaff);
+
+                if (employeesToDelete.Any())
+                {
+                    Mouse.OverrideCursor = Cursors.Arrow;
+
+                    string missingList = string.Join("\n", employeesToDelete);
+
+                    var result = MessageBox.Show($"The following employees are no longer in the imported Wages table.\n\nBy clicking OK, you will permanently delete them (and all their calculated history) from the system:\n\n{missingList}\n\nDo you wish to proceed?",
+                                                 "Confirm Deletion", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+
+                    if (result != MessageBoxResult.OK)
+                    {
+                        return;
+                    }
+
+                    Mouse.OverrideCursor = Cursors.Wait;
+                }
+
                 await Helpers.DatabaseHelper.SaveStaffToDatabaseAsync(vm.OCStaff);
                 MessageBox.Show("Staff data has been successfully saved to the RA-ERP Costing database!", "Save Complete", MessageBoxButton.OK, MessageBoxImage.Information);
             }
 
             catch (Exception ex)
             {
-                MessageBox.Show("Error saving to database: \n\n" + ex.Message,
+                string errorMsg = ex.Message;
+
+                if (ex.InnerException != null)
+                {
+                    errorMsg += "\n\nINNER EXCEPTION:\n" + ex.InnerException.Message;
+                }
+
+                MessageBox.Show("Error saving to database:\n\n" + errorMsg,
                                 "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally

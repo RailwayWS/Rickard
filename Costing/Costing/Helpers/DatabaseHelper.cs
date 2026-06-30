@@ -8,10 +8,26 @@ namespace Costing.Helpers
 {
     public class DatabaseHelper
     {
+
+        public static async Task<List<string>> GetEmployeesToDeleteAsync(IEnumerable<BasicEmployee> staffList)
+        {
+            using (var db = new CostingDbContext())
+            {
+                var excelCodes = staffList.Select(e => e.Code).ToList();
+
+                var allDbStaff = await db.Staff.ToListAsync();
+
+                var toDelete = allDbStaff.Where(dbEmp => !excelCodes.Contains(dbEmp.Code)).ToList();
+
+                return toDelete.Select(e => $"{e.Code} - {e.Name}").ToList();
+            }
+        }
+
         public static async Task SaveStaffToDatabaseAsync(IEnumerable<BasicEmployee> staffList)
         {
             using (var db = new CostingDbContext())
             {
+                // 1. UPSERT LOGIC (Add or Update existing)
                 foreach (var emp in staffList)
                 {
                     var existingEmployee = await db.Staff.FirstOrDefaultAsync(e => e.Code == emp.Code);
@@ -29,18 +45,37 @@ namespace Costing.Helpers
                     }
                 }
 
-                // Find people in the DB who are no longer in the Excel sheet
                 var excelCodes = staffList.Select(e => e.Code).ToList();
                 var allDbStaff = await db.Staff.ToListAsync();
                 var toDelete = allDbStaff.Where(dbEmp => !excelCodes.Contains(dbEmp.Code)).ToList();
 
-                foreach (var oldEmp in toDelete)
+                if (toDelete.Any())
                 {
-                    // Remove ALL Allocation rows for this employee (multi-WC aware)
-                    var orphanedRows = db.Allocations.Where(a => a.Code == oldEmp.Code);
-                    db.Allocations.RemoveRange(orphanedRows);
+                    foreach (var oldEmp in toDelete)
+                    {
+                        // Remove Allocations
+                        var orphanedAllocations = db.Allocations.Where(a => a.Code == oldEmp.Code).ToList();
+                        if (orphanedAllocations.Any()) db.Allocations.RemoveRange(orphanedAllocations);
 
-                    db.Staff.Remove(oldEmp);
+                        // Remove Calculated Costs
+                        var orphanedCosts = db.CalculatedStaffCosts
+                                              .Where(cost => cost.CalculatedStaffRecord.Code == oldEmp.Code)
+                                              .ToList();
+                        if (orphanedCosts.Any()) db.CalculatedStaffCosts.RemoveRange(orphanedCosts);
+
+                        // Remove Calculated Records
+                        var orphanedCalculations = db.CalculatedStaffRecords
+                                                     .Where(c => c.Code == oldEmp.Code)
+                                                     .ToList();
+                        if (orphanedCalculations.Any()) db.CalculatedStaffRecords.RemoveRange(orphanedCalculations);
+                    }
+
+                    await db.SaveChangesAsync();
+
+                    foreach (var oldEmp in toDelete)
+                    {
+                        db.Staff.Remove(oldEmp);
+                    }
                 }
 
                 await db.SaveChangesAsync();
@@ -110,29 +145,6 @@ namespace Costing.Helpers
         {
             using (var db = new CostingDbContext())
             {
-                #region rogue vals
-                // find values in costing thats not in wages ( will probably remove this later )
-                var validCodes = await db.Staff.Select(e => e.Code.Trim()).ToListAsync();
-
-                var rogueRecords = calculatedList.Where(c => string.IsNullOrWhiteSpace(c.Code) || !validCodes.Contains(c.Code.Trim())).ToList();
-
-                if (rogueRecords.Any())
-                {
-                    var badCodes = rogueRecords.Select(r =>
-                        string.IsNullOrWhiteSpace(r.Code) ? "[BLANK CODE - Check Excel for ghost rows]" : r.Code.Trim()
-                    ).Distinct().ToList();
-
-                    string missingList = string.Join("\n", badCodes);
-
-                    System.Windows.MessageBox.Show(
-                        "Cannot save to database! The following Employee Codes exist in the Excel calculation, but do NOT exist in your master Staff list. \n\nPlease add them to the Staff Management screen first:\n\n" + missingList,
-                        "Missing Employees Detected",
-                        System.Windows.MessageBoxButton.OK,
-                        System.Windows.MessageBoxImage.Error);
-
-                    return;
-                }
-                #endregion
 
                 foreach (var calc in calculatedList)
                 {

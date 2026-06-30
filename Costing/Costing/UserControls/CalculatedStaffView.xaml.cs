@@ -55,6 +55,7 @@ namespace Costing.UserControls
 
                 List<Allocation> allocations;
                 List<StaffCost> liveDbCosts;
+                List<BasicEmployee> liveStaff;
 
                 using (var context = new CostingDbContext())
                 {
@@ -64,6 +65,7 @@ namespace Costing.UserControls
                         .ToListAsync();
 
                     liveDbCosts = await context.StaffCosts.ToListAsync();
+                    liveStaff = await context.Staff.ToListAsync();
                 }
 
                 if (!allocations.Any())
@@ -81,10 +83,15 @@ namespace Costing.UserControls
 
                 foreach (var alloc in allocations)
                 {
-                    excelData.TryGetValue(alloc.Code, out var excelRow);
-                    // If the employee isn't in the Excel sheet we default to 0/1
-                    decimal ratePerHour = excelRow.RatePerHour;
-                    decimal efficiency = excelRow.Efficiency == 0 ? 1m : excelRow.Efficiency;
+                    var staffMember = liveStaff.FirstOrDefault(s => s.Code == alloc.Code);
+                    if (staffMember == null) continue;
+
+                    decimal ratePerHour = staffMember.Rate;
+                    decimal efficiency = 1m; // Default to 100% if not found in Costing Sheet
+                    if (excelData.TryGetValue(alloc.Code, out var excelRow))
+                    {
+                        efficiency = excelRow.Efficiency == 0 ? 1m : excelRow.Efficiency;
+                    }
 
                     rawRecords.Add(new CalculatedStaff
                     {
