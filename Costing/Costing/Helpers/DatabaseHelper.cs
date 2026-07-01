@@ -188,7 +188,7 @@ namespace Costing.Helpers
 
                     if (existingRecord != null)
                     {
-                        //  UPDATE parent fields
+                        // UPDATE parent fields
                         existingRecord.Name = calc.Name;
                         existingRecord.WorkCentre = calc.WorkCentre;
                         existingRecord.RatePerHour = calc.RatePerHour;
@@ -197,10 +197,13 @@ namespace Costing.Helpers
                         existingRecord.Rate = calc.Rate;
                         existingRecord.Total = calc.Total;
 
-                        // tell the DbSet to delete the old children
-                        if (existingRecord.DynamicCosts != null && existingRecord.DynamicCosts.Any())
+                        // Explicitly remove children one by one to avoid complex batch SQL
+                        if (existingRecord.DynamicCosts != null)
                         {
-                            db.CalculatedStaffCosts.RemoveRange(existingRecord.DynamicCosts.ToList());
+                            foreach (var child in existingRecord.DynamicCosts.ToList())
+                            {
+                                db.CalculatedStaffCosts.Remove(child);
+                            }
                         }
 
                         var newCosts = calc.DynamicCosts.Select(row => new CalculatedStaffCost
@@ -210,7 +213,6 @@ namespace Costing.Helpers
                             CalculatedStaffId = existingRecord.Id // Link to parent
                         });
 
-                        // Pass the whole list to the DbSet at once
                         db.CalculatedStaffCosts.AddRange(newCosts);
                     }
                     else
@@ -220,6 +222,10 @@ namespace Costing.Helpers
                     }
                 }
 
+                // Save the upserts (Inserts and Updates)
+                await db.SaveChangesAsync();
+
+                // CLEAN UP ORPHANED RECORDS
                 var currentKeys = calcList
                     .Select(c => (c.Code, c.WorkCentre))
                     .ToHashSet();
@@ -234,18 +240,42 @@ namespace Costing.Helpers
 
                 if (staleRecords.Any())
                 {
-                    var staleChildCosts = staleRecords
-                        .Where(r => r.DynamicCosts != null)
-                        .SelectMany(r => r.DynamicCosts)
-                        .ToList();
+                    // Use Raw SQL for deletes to guarantee no 'WITH' syntax is generated
+                    using (var connection = new Microsoft.Data.SqlClient.SqlConnection(db.Database.GetConnectionString()))
+                    {
+                        await connection.OpenAsync();
+                        using (var transaction = connection.BeginTransaction())
+                        {
+                            try
+                            {
+                                foreach (var parent in staleRecords)
+                                {
+                                    // 1. Delete children (Raw SQL avoids all EF batching bugs)
+                                    using (var cmd = new Microsoft.Data.SqlClient.SqlCommand(
+                                        "DELETE FROM dbo.CalculatedStaffCosts WHERE calculated_staff_id = @id", connection, transaction))
+                                    {
+                                        cmd.Parameters.AddWithValue("@id", parent.Id);
+                                        await cmd.ExecuteNonQueryAsync();
+                                    }
 
-                    if (staleChildCosts.Any())
-                        db.CalculatedStaffCosts.RemoveRange(staleChildCosts);
-
-                    db.CalculatedStaffRecords.RemoveRange(staleRecords);
+                                    // 2. Delete parent (Raw SQL)
+                                    using (var cmd = new Microsoft.Data.SqlClient.SqlCommand(
+                                        "DELETE FROM dbo.CalculatedStaffRecords WHERE id = @id", connection, transaction))
+                                    {
+                                        cmd.Parameters.AddWithValue("@id", parent.Id);
+                                        await cmd.ExecuteNonQueryAsync();
+                                    }
+                                }
+                                transaction.Commit();
+                            }
+                            catch
+                            {
+                                transaction.Rollback();
+                                throw;
+                            }
+                        }
+                    }
                 }
-
-                await db.SaveChangesAsync();
             }
         }
 
@@ -264,7 +294,7 @@ namespace Costing.Helpers
             {
                 await con.OpenAsync();
 
-                // get Cost Centres
+                // Grab Cost Centres
                 using (SqlCommand cmd = new SqlCommand("SELECT CostCentre, Description FROM dbo.BomCostCentre", con))
                 using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
                 {
@@ -278,7 +308,7 @@ namespace Costing.Helpers
                     }
                 }
 
-                // get Work Centres
+                // Grab Work Centres
                 using (SqlCommand cmd = new SqlCommand("SELECT WorkCentre, Description, CostCentre FROM dbo.BomWorkCentre", con))
                 using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
                 {

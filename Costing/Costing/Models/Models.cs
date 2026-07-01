@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
-using System.ComponentModel.DataAnnotations;
 
 namespace Costing.Models
 {
@@ -28,9 +22,10 @@ namespace Costing.Models
 
     }
 
-    [Table("Basic", Schema ="dbo")]
+    [Table("Basic", Schema = "dbo")]
     public class BasicEmployee
     {
+
         [Key]
         [Column("code")]
         public string Code { get; set; }

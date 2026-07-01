@@ -6,9 +6,6 @@ namespace Costing.Models
     [Table("CostCentres")]
     public class CostCentre
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Column("id")]
-        public int Id { get; set; }
 
         [Key]
         [Column("cc_code")]
