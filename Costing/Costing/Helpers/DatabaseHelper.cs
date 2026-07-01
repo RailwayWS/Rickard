@@ -197,7 +197,7 @@ namespace Costing.Helpers
                         existingRecord.Rate = calc.Rate;
                         existingRecord.Total = calc.Total;
 
-                        // tell the specific DbSet to delete the old children
+                        // tell the DbSet to delete the old children
                         if (existingRecord.DynamicCosts != null && existingRecord.DynamicCosts.Any())
                         {
                             db.CalculatedStaffCosts.RemoveRange(existingRecord.DynamicCosts.ToList());
@@ -264,7 +264,7 @@ namespace Costing.Helpers
             {
                 await con.OpenAsync();
 
-                // Grab Cost Centres
+                // get Cost Centres
                 using (SqlCommand cmd = new SqlCommand("SELECT CostCentre, Description FROM dbo.BomCostCentre", con))
                 using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
                 {
@@ -278,7 +278,7 @@ namespace Costing.Helpers
                     }
                 }
 
-                // Grab Work Centres
+                // get Work Centres
                 using (SqlCommand cmd = new SqlCommand("SELECT WorkCentre, Description, CostCentre FROM dbo.BomWorkCentre", con))
                 using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
                 {

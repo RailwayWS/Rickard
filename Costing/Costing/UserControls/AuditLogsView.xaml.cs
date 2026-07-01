@@ -148,7 +148,7 @@ namespace Costing.UserControls
             {
                 using (var context = new CostingDbContext())
                 {
-                    // Grab all rows belonging to this snapshot and wipe them
+                    // Get all rows belonging to this snapshot and wipe them
                     var logsToDelete = await context.AuditLogs.Include(a => a.Costs).Where(a => a.SnapshotName == selectedSnapshot).ToListAsync();
                     context.AuditLogs.RemoveRange(logsToDelete);
                     await context.SaveChangesAsync();

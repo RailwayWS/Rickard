@@ -1,9 +1,5 @@
 ﻿using Costing.Models;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -107,9 +103,6 @@ namespace Costing.UserControls
         {
             var tb = (TextBox)sender;
             string prospective = tb.Text.Remove(tb.SelectionStart, tb.SelectionLength).Insert(tb.SelectionStart, e.Text);
-
-            // Allow dots OR commas to support regional numpad settings
-            e.Handled = !Regex.IsMatch(prospective, @"^\d*[.,]?\d*$");
         }
 
         private void TbPortion_TextChanged(object sender, TextChangedEventArgs e)

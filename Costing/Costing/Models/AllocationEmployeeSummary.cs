@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace Costing.Models
 {
-    public class EmployeeAllocationSummary : INotifyPropertyChanged // used to display the summary if work centres in allocations
+    public class EmployeeAllocationSummary : INotifyPropertyChanged // used to display the summary of work centres in allocations
     {
         private string _code;
         private string _name;

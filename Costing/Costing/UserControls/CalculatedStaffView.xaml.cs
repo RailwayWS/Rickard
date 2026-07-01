@@ -46,7 +46,7 @@ namespace Costing.UserControls
 
             try
             {
-                // Read RatePerHour + Efficiency from Excel (keyed by Code)
+                // Read RatePerHour + Efficiency from Excel
                 var excelData = await Task.Run(() =>
                     Helpers.ExcelHelper.GetRateAndEfficiencyFromExcel(filePath));
 
@@ -75,7 +75,6 @@ namespace Costing.UserControls
                     return;
                 }
 
-                // One CalculatedStaff per Allocation row.
                 // RatePerHour + Efficiency  from Excel, everything else from DB.
                 txtProgress.Text = "Building calculation inputs...";
 
@@ -264,7 +263,6 @@ namespace Costing.UserControls
             var vm = this.DataContext as CalculatedStaffViewModel;
             if (vm == null || vm.OCCalculatedStaff.Count == 0) return;
 
-            // Hide the panel and show the loading cursor
             pnlAuditInput.Visibility = Visibility.Collapsed;
             Mouse.OverrideCursor = Cursors.Wait;
 

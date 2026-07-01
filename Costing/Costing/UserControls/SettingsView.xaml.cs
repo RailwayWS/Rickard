@@ -1,10 +1,7 @@
 ﻿using Costing.Data;
 using Costing.Models;
-using Costing.Other;
 using Costing.Viewmodels;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -119,15 +116,13 @@ namespace Costing.UserControls
         #region Tab 2: Users Logic
         private async void FillUsers()
         {
-            // Only query the database once. Let EF Core handle memory cache after that.
+            // Only query the database once
             if (vmSettings.OclUsers == null || !vmSettings.OclUsers.Any())
             {
                 Mouse.OverrideCursor = Cursors.Wait;
                 try
                 {
                     await _context.LoginUsers.LoadAsync();
-
-                    // Bind directly to the Local Cache tracked by EF Core
                     vmSettings.OclUsers = _context.LoginUsers.Local.ToObservableCollection();
                 }
                 catch (Exception ex)
@@ -190,13 +185,11 @@ namespace Costing.UserControls
             txtNewEmail.Text = "";
             cmbNewRole.SelectedIndex = 1; // Defaults to "Standard"
 
-            // Show the popup
             pnlAddUser.Visibility = Visibility.Visible;
         }
 
         private void btnCancelAddUser_Click(object sender, RoutedEventArgs e)
         {
-            // Hide the popup
             pnlAddUser.Visibility = Visibility.Collapsed;
         }
 
@@ -236,7 +229,7 @@ namespace Costing.UserControls
         #region Tab 3: Work Centres Logic
         private async void FillWorkCentres()
         {
-            // Only query the database once. Let EF Core handle memory cache after that.
+            // Only query the database once
             if (vmSettings.OCWorkCentres == null || !vmSettings.OCWorkCentres.Any())
             {
                 Mouse.OverrideCursor = Cursors.Wait;

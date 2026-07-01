@@ -1,7 +1,4 @@
 ﻿using Costing.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Costing.Helpers
 {
@@ -100,7 +97,7 @@ namespace Costing.Helpers
                     progress.Report(percentComplete);
                 }
 
-                System.Threading.Thread.Sleep(1);//REMOVE
+                System.Threading.Thread.Sleep(1);
             }
 
             return processedList;

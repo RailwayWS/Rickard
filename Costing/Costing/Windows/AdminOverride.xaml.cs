@@ -27,7 +27,7 @@ namespace Costing.Windows
                     Role = "Admin"
                 };
 
-                this.DialogResult = true; // signals success back to Login
+                this.DialogResult = true;
                 this.Close();
             }
             else
