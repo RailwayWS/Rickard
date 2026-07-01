@@ -73,9 +73,6 @@
                 <DataGridTextColumn Header="Employee Name" Binding="{Binding EmployeeName}" Width="200"/>
                 <DataGridTextColumn Header="Snapshot Date" Binding="{Binding SnapshotDate, StringFormat=\{0:yyyy-MM-dd HH:mm\}}" Width="150" Foreground="#64748B"/>
 
-                <DataGridTextColumn Header="Bonus" Binding="{Binding Bonus, StringFormat={}{0:N2}}" Width="120" Foreground="#2563EB"/>
-                <DataGridTextColumn Header="UIF" Binding="{Binding UIF, StringFormat={}{0:N2}}" Width="120" Foreground="#2563EB"/>
-                <DataGridTextColumn Header="SDL" Binding="{Binding SDL, StringFormat={}{0:N2}}" Width="120" Foreground="#2563EB"/>
             </DataGrid.Columns>
         </DataGrid>
         <!--#endregion-->

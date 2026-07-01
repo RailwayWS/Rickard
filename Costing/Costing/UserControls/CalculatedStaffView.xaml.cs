@@ -188,7 +188,7 @@ namespace Costing.UserControls
             }
         }
 
-        # endregion
+        #endregion
 
         #region Audit function
 
@@ -203,8 +203,30 @@ namespace Costing.UserControls
                 return;
             }
 
-            // Clear the text box and show the overlay card
             txtAuditName.Text = "";
+            pnlAuditCategories.Children.Clear();
+
+            // Look at the first calculated employee to see what dynamic categories currently exist
+            var firstEmp = vm.OCCalculatedStaff.FirstOrDefault();
+            if (firstEmp != null && firstEmp.DynamicCosts != null)
+            {
+                foreach (var cost in firstEmp.DynamicCosts)
+                {
+                    var cb = new CheckBox
+                    {
+                        Content = cost.CategoryName,
+                        Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#CBD5E1")),
+                        Margin = new Thickness(0, 0, 8, 8),
+                        Tag = cost.CategoryName,
+                        IsChecked = true
+                    };
+
+                    cb.Style = (Style)Application.Current.TryFindResource("ChipCheckBoxStyle");
+
+                    pnlAuditCategories.Children.Add(cb);
+                }
+            }
+
             pnlAuditInput.Visibility = Visibility.Visible;
         }
 
@@ -223,6 +245,22 @@ namespace Costing.UserControls
                 return;
             }
 
+            // Figure out exactly which categories the user left checked
+            var selectedCategories = new System.Collections.Generic.List<string>();
+            foreach (CheckBox cb in pnlAuditCategories.Children)
+            {
+                if (cb.IsChecked == true)
+                {
+                    selectedCategories.Add(cb.Tag.ToString());
+                }
+            }
+
+            if (selectedCategories.Count == 0)
+            {
+                MessageBox.Show("Please select at least one category to audit.", "Required", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var vm = this.DataContext as CalculatedStaffViewModel;
             if (vm == null || vm.OCCalculatedStaff.Count == 0) return;
 
@@ -234,65 +272,54 @@ namespace Costing.UserControls
             {
                 using (var context = new CostingDbContext())
                 {
-                    // Grab the current rules so we can record the rate (e.g. 1.5%)
-                    // that was actually used to produce this snapshot's amounts.
+                    // get the current rates from the DB
                     var liveDbCosts = await context.StaffCosts.ToListAsync();
-
-                    decimal? bonusRate = liveDbCosts
-                        .FirstOrDefault(c => c.Category.Equals("Bonus", StringComparison.OrdinalIgnoreCase))
-                        ?.Value;
-                    decimal? uifRate = liveDbCosts
-                        .FirstOrDefault(c => c.Category.Equals("UIF", StringComparison.OrdinalIgnoreCase))
-                        ?.Value;
-                    decimal? sdlRate = liveDbCosts
-                        .FirstOrDefault(c => c.Category.Equals("SDL", StringComparison.OrdinalIgnoreCase))
-                        ?.Value;
-
                     DateTime exactTimestamp = DateTime.Now;
-                    var newSnapshots = new List<AuditLog>();
+                    var newSnapshots = new System.Collections.Generic.List<AuditLog>();
 
-                    // Loop through the data currently visible on the grid
+                    // Loop through every calculated employee
                     foreach (var emp in vm.OCCalculatedStaff)
                     {
+                        // Create the Parent Record
                         var snap = new AuditLog
                         {
                             Code = emp.Code,
                             EmployeeName = emp.Name,
                             SnapshotDate = exactTimestamp,
                             SnapshotName = snapshotName,
-
-                            // Use the Indexer from CalculatedStaff.cs to grab exactly the 3 categories
-                            Bonus = emp["Bonus"],
-                            UIF = emp["UIF"],
-                            SDL = emp["SDL"],
-
-                            // The rate used to calculate the above amounts, captured
-                            // at snapshot time so it stays accurate even if rates
-                            // change later.
-                            BonusRate = bonusRate,
-                            UifRate = uifRate,
-                            SdlRate = sdlRate
+                            Costs = new System.Collections.Generic.List<AuditLogCost>()
                         };
+
+                        // Loop through only the CHECKED categories and create Child Records
+                        foreach (var cat in selectedCategories)
+                        {
+                            // Find the rate used
+                            decimal? rateUsed = liveDbCosts.FirstOrDefault(c => c.Category.Equals(cat, System.StringComparison.OrdinalIgnoreCase))?.Value;
+
+                            snap.Costs.Add(new AuditLogCost
+                            {
+                                CategoryName = cat,
+                                Amount = emp[cat],
+                                RateUsed = rateUsed
+                            });
+                        }
 
                         newSnapshots.Add(snap);
                     }
 
-                    // Save all rows to the new database table
                     context.AuditLogs.AddRange(newSnapshots);
                     await context.SaveChangesAsync();
                 }
 
-                MessageBox.Show($"Audit log '{snapshotName}' successfully recorded!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"Audit log '{snapshotName}' successfully recorded with {selectedCategories.Count} categories!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 string errorMsg = ex.Message;
-
                 if (ex.InnerException != null)
                 {
                     errorMsg += "\n\nINNER EXCEPTION:\n" + ex.InnerException.Message;
                 }
-
                 MessageBox.Show("Error recording audit log:\n\n" + errorMsg, "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally

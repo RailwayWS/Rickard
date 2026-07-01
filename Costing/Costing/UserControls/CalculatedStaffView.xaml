@@ -90,6 +90,8 @@
                 <TextBlock Text="Record Audit Log" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,15" HorizontalAlignment="Center"/>
                 <TextBlock Text="Snapshot Name (e.g. Q1 2026 Audit)" Foreground="#CBD5E1" FontWeight="SemiBold" Margin="0,0,0,5"/>
                 <TextBox x:Name="txtAuditName" Style="{StaticResource DarkTextBoxStyle}" Height="36" VerticalContentAlignment="Center" Padding="5,0" Margin="0,0,0,24"/>
+                <TextBlock Text="Select Categories to Audit" Foreground="#CBD5E1" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                <WrapPanel x:Name="pnlAuditCategories" Orientation="Horizontal" Margin="0,0,0,24" />
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>

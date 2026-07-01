@@ -23,6 +23,8 @@ namespace Costing.Data
 
         public DbSet<AuditLog> AuditLogs { get; set; }
 
+        public DbSet<AuditLogCost> AuditLogCosts { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(

@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Costing.Models
@@ -24,25 +23,17 @@ namespace Costing.Models
         [Column("snapshot_name")]
         public string SnapshotName { get; set; }
 
-        [Column("bonus")]
-        public decimal Bonus { get; set; }
+        // Relational link to the dynamic categories
+        public virtual List<AuditLogCost> Costs { get; set; } = new List<AuditLogCost>();
 
-        [Column("uif")]
-        public decimal UIF { get; set; }
-
-        [Column("sdl")]
-        public decimal SDL { get; set; }
-
-        [Column("bonus_rate")]
-        [Precision(15, 5)]
-        public decimal? BonusRate { get; set; }
-
-        [Column("uif_rate")]
-        [Precision(15, 5)]
-        public decimal? UifRate { get; set; }
-
-        [Column("sdl_rate")]
-        [Precision(15, 5)]
-        public decimal? SdlRate { get; set; }
+        [NotMapped]
+        public decimal this[string categoryName]
+        {
+            get
+            {
+                var cost = Costs?.FirstOrDefault(c => c.CategoryName.Equals(categoryName, StringComparison.OrdinalIgnoreCase));
+                return cost?.Amount ?? 0m;
+            }
+        }
     }
 }

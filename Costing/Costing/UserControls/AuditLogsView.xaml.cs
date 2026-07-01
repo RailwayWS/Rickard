@@ -63,8 +63,11 @@ namespace Costing.UserControls
                 {
                     // Fetch only the records tied to the selected snapshot name
                     var logData = await context.AuditLogs
+                                               .Include(a => a.Costs)
                                                .Where(a => a.SnapshotName == selectedSnapshot)
                                                .ToListAsync();
+
+                    RebuildDynamicColumns(logData);
 
                     vm.OCAuditLogs.Clear();
                     foreach (var record in logData)
@@ -82,6 +85,43 @@ namespace Costing.UserControls
             finally
             {
                 Mouse.OverrideCursor = null;
+            }
+        }
+
+        private void RebuildDynamicColumns(IEnumerable<Costing.Models.AuditLog> snapshotData)
+        {
+            while (dgAuditLogs.Columns.Count > 3)
+            {
+                dgAuditLogs.Columns.RemoveAt(3);
+            }
+
+            if (snapshotData == null || !snapshotData.Any()) return;
+
+            var uniqueCategories = snapshotData
+                .Where(log => log.Costs != null)
+                .SelectMany(log => log.Costs)
+                .Select(cost => cost.CategoryName)
+                .Distinct()
+                .OrderBy(name => name)
+                .ToList();
+
+            int insertIndex = 3;
+            foreach (var category in uniqueCategories)
+            {
+
+                var newColumn = new DataGridTextColumn
+                {
+                    Header = category,
+                    Binding = new System.Windows.Data.Binding($"[{category}]")
+                    {
+                        StringFormat = "{0:N2}"
+                    },
+                    Width = new DataGridLength(100),
+                    Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(37, 99, 235)) // #2563EB
+                };
+
+                dgAuditLogs.Columns.Insert(insertIndex, newColumn);
+                insertIndex++;
             }
         }
 
@@ -109,7 +149,7 @@ namespace Costing.UserControls
                 using (var context = new CostingDbContext())
                 {
                     // Grab all rows belonging to this snapshot and wipe them
-                    var logsToDelete = await context.AuditLogs.Where(a => a.SnapshotName == selectedSnapshot).ToListAsync();
+                    var logsToDelete = await context.AuditLogs.Include(a => a.Costs).Where(a => a.SnapshotName == selectedSnapshot).ToListAsync();
                     context.AuditLogs.RemoveRange(logsToDelete);
                     await context.SaveChangesAsync();
 

@@ -128,19 +128,52 @@ namespace Costing.Helpers
         {
             var lines = new List<string>();
 
-            lines.Add("Code;Employee Name;Snapshot Date;Snapshot Name;Bonus;UIF;SDL;Bonus Rate;UIF Rate;SDL Rate");
+            // Find all unique categories present in this snapshot
+            var allCategories = auditData
+                .Where(log => log.Costs != null)
+                .SelectMany(log => log.Costs)
+                .Select(cost => cost.CategoryName)
+                .Distinct()
+                .OrderBy(name => name)
+                .ToList();
 
+            // Build the header
+            var headers = new List<string> { "Code", "Employee Name", "Snapshot Date", "Snapshot Name" };
+            foreach (var cat in allCategories)
+            {
+                headers.Add($"{cat} Amount");
+                headers.Add($"{cat} Rate");
+            }
+            lines.Add(string.Join(";", headers));
+
+            // Build the rows
             foreach (var log in auditData)
             {
-                string safeName = log.EmployeeName?.Replace(";", " ") ?? "";
-                string safeDate = log.SnapshotDate.ToString("yyyy-MM-dd HH:mm");
+                var row = new List<string>();
 
-                string bonusRate = log.BonusRate.HasValue ? log.BonusRate.Value.ToString("0.00000") : "";
-                string uifRate = log.UifRate.HasValue ? log.UifRate.Value.ToString("0.00000") : "";
-                string sdlRate = log.SdlRate.HasValue ? log.SdlRate.Value.ToString("0.00000") : "";
+                row.Add(log.Code ?? "");
+                row.Add(log.EmployeeName?.Replace(";", " ") ?? "");
+                row.Add(log.SnapshotDate.ToString("yyyy-MM-dd HH:mm"));
+                row.Add(log.SnapshotName?.Replace(";", " ") ?? "");
 
-                string row = $"{log.Code};{safeName};{safeDate};{log.SnapshotName};{log.Bonus:0.00};{log.UIF:0.00};{log.SDL:0.00};{bonusRate};{uifRate};{sdlRate}";
-                lines.Add(row);
+                // Match the costs to headers
+                foreach (var cat in allCategories)
+                {
+                    var cost = log.Costs?.FirstOrDefault(c => c.CategoryName.Equals(cat, StringComparison.OrdinalIgnoreCase));
+
+                    if (cost != null)
+                    {
+                        row.Add(cost.Amount.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture));
+                        row.Add(cost.RateUsed.HasValue ? cost.RateUsed.Value.ToString("0.00000", System.Globalization.CultureInfo.InvariantCulture) : "");
+                    }
+                    else
+                    {
+                        row.Add("0.00");
+                        row.Add("");
+                    }
+                }
+
+                lines.Add(string.Join(";", row));
             }
 
             System.IO.File.WriteAllLines(filePath, lines);
