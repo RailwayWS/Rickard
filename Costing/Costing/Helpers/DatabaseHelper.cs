@@ -28,9 +28,14 @@ namespace Costing.Helpers
             using (var db = new CostingDbContext())
             {
                 // Upsert
+                var incomingCodes = staffList.Select(e => e.Code).ToList();
+                var existingStaff = await db.Staff
+                    .Where(e => incomingCodes.Contains(e.Code))
+                    .ToListAsync();
+
                 foreach (var emp in staffList)
                 {
-                    var existingEmployee = await db.Staff.FirstOrDefaultAsync(e => e.Code == emp.Code);
+                    var existingEmployee = existingStaff.FirstOrDefault(e => e.Code == emp.Code);
 
                     if (existingEmployee != null)
                     {
@@ -45,40 +50,62 @@ namespace Costing.Helpers
                     }
                 }
 
-                var excelCodes = staffList.Select(e => e.Code).ToList();
                 var allDbStaff = await db.Staff.ToListAsync();
-                var toDelete = allDbStaff.Where(dbEmp => !excelCodes.Contains(dbEmp.Code)).ToList();
+                var toDelete = allDbStaff.Where(dbEmp => !incomingCodes.Contains(dbEmp.Code)).ToList();
 
                 if (toDelete.Any())
                 {
-                    foreach (var oldEmp in toDelete)
-                    {
-                        // Remove Allocations
-                        var orphanedAllocations = db.Allocations.Where(a => a.Code == oldEmp.Code).ToList();
-                        if (orphanedAllocations.Any()) db.Allocations.RemoveRange(orphanedAllocations);
+                    var codesToDelete = toDelete.Select(e => e.Code).ToList();
 
-                        // Remove Calculated Costs
-                        var orphanedCosts = db.CalculatedStaffCosts
-                                              .Where(cost => cost.CalculatedStaffRecord.Code == oldEmp.Code)
+                    using var transaction = await db.Database.BeginTransactionAsync();
+                    try
+                    {
+                        foreach (var oldEmp in toDelete)
+                        {
+                            // Remove Allocations
+                            var orphanedAllocations = db.Allocations.Where(a => a.Code == oldEmp.Code).ToList();
+                            if (orphanedAllocations.Any()) db.Allocations.RemoveRange(orphanedAllocations);
+
+                            // Remove Calculated Costs
+                            var parentIds = db.CalculatedStaffRecords
+                                              .Where(r => r.Code == oldEmp.Code)
+                                              .Select(r => r.Id)
                                               .ToList();
-                        if (orphanedCosts.Any()) db.CalculatedStaffCosts.RemoveRange(orphanedCosts);
 
-                        // Remove Calculated Records
-                        var orphanedCalculations = db.CalculatedStaffRecords
-                                                     .Where(c => c.Code == oldEmp.Code)
-                                                     .ToList();
-                        if (orphanedCalculations.Any()) db.CalculatedStaffRecords.RemoveRange(orphanedCalculations);
+                            var orphanedCosts = db.CalculatedStaffCosts
+                                                  .Where(cost => parentIds.Contains(cost.CalculatedStaffId))
+                                                  .ToList();
+                            if (orphanedCosts.Any()) db.CalculatedStaffCosts.RemoveRange(orphanedCosts);
+
+                            // Remove Calculated Records
+                            var orphanedCalculations = db.CalculatedStaffRecords
+                                                         .Where(c => c.Code == oldEmp.Code)
+                                                         .ToList();
+                            if (orphanedCalculations.Any()) db.CalculatedStaffRecords.RemoveRange(orphanedCalculations);
+
+                            // AuditLog rows are intentionally NOT removed
+                        }
+
+                        await db.SaveChangesAsync();
+
+                        foreach (var oldEmp in toDelete)
+                        {
+                            db.Staff.Remove(oldEmp);
+                        }
+
+                        await db.SaveChangesAsync();
+                        await transaction.CommitAsync();
                     }
-
-                    await db.SaveChangesAsync();
-
-                    foreach (var oldEmp in toDelete)
+                    catch
                     {
-                        db.Staff.Remove(oldEmp);
+                        await transaction.RollbackAsync();
+                        throw;
                     }
                 }
-
-                await db.SaveChangesAsync();
+                else
+                {
+                    await db.SaveChangesAsync();
+                }
             }
         }
 
