@@ -12,39 +12,7 @@
         Background="Transparent"
         Topmost="True">
 
-    <Window.Resources>
-        <Style x:Key="ModernDialogButton" TargetType="Button">
-            <Setter Property="FontFamily" Value="Segoe UI"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Padding" Value="16,8"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="{TemplateBinding BorderThickness}" 
-                                CornerRadius="4">
-                            <ContentPresenter HorizontalAlignment="Center" 
-                                              VerticalAlignment="Center" 
-                                              Margin="{TemplateBinding Padding}"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Opacity" Value="0.85"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Opacity" Value="0.7"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Resources>
-
-    <Border Background="White" CornerRadius="8" Margin="20" BorderBrush="#E2E8F0" BorderThickness="1">
+    <Border Background="White" CornerRadius="8" Margin="20" BorderBrush="{StaticResource Brush.CardBorder}" BorderThickness="1">
 
         <Border.Effect>
             <DropShadowEffect BlurRadius="20" ShadowDepth="6" Opacity="0.15" Direction="270" Color="Black"/>
@@ -62,14 +30,14 @@
                        FontFamily="Segoe UI" 
                        FontSize="18" 
                        FontWeight="Bold" 
-                       Foreground="#1E293B" 
+                       Foreground="{StaticResource Brush.TextHeading}" 
                        Margin="0,0,0,12"/>
 
             <TextBlock Grid.Row="1" 
                        Text="{Binding Path=DataContext.message}" 
                        FontFamily="Segoe UI" 
                        FontSize="14" 
-                       Foreground="#475569" 
+                       Foreground="{StaticResource Brush.TextBody}" 
                        TextWrapping="Wrap" 
                        LineHeight="20"
                        MinHeight="40"
@@ -80,23 +48,16 @@
                 <Button x:Name="btcancel" 
                         Content="Cancel" 
                         Click="btcancel_Click" 
-                        Style="{StaticResource ModernDialogButton}" 
-                        Background="Transparent" 
-                        BorderBrush="#CBD5E1" 
-                        BorderThickness="1" 
-                        Foreground="#64748B" 
+                        Style="{StaticResource SecondaryButton}" 
                         Margin="0,0,12,0" 
-                        MinWidth="80"/>
+                        Width="80" Height="36"/>
 
                 <Button x:Name="btOK" 
                         Content="OK" 
                         Click="btok_Click" 
                         IsDefault="True" 
-                        Style="{StaticResource ModernDialogButton}" 
-                        Background="#3B82F6" 
-                        BorderThickness="0" 
-                        Foreground="White" 
-                        MinWidth="80"/>
+                        Style="{StaticResource PrimaryButton}" 
+                        Width="80" Height="36"/>
 
             </StackPanel>
         </Grid>
