@@ -9,6 +9,7 @@ namespace Costing.Helpers
     public class DatabaseHelper
     {
 
+        #region Staff saving and deleting
         public static async Task<List<string>> GetEmployeesToDeleteAsync(IEnumerable<BasicEmployee> staffList)
         {
             using (var db = new CostingDbContext())
@@ -108,6 +109,10 @@ namespace Costing.Helpers
                 }
             }
         }
+
+        #endregion
+
+        #region save calculations functions
 
         public static async Task SaveStaffCostsToDatabaseAsync(IEnumerable<StaffCost> staffCostsList)
         {
@@ -218,6 +223,10 @@ namespace Costing.Helpers
             }
         }
 
+        #endregion
+
+        #region Get cost/work centres from syspro
+
         public static async Task GetSysproDataAsync()
         {
             var newCostCentres = new List<CostCentre>();
@@ -306,5 +315,101 @@ namespace Costing.Helpers
                 await context.SaveChangesAsync();
             }
         }
+        #endregion
+
+        #region Overhead / GL
+        public static async Task<List<GLPeriodControl>> GetSysproPeriodsAsync()
+        {
+            var periods = new List<GLPeriodControl>();
+            string company = Costing.Properties.Settings.Default.SysproDB.Substring(Costing.Properties.Settings.Default.SysproDB.Length - 1, 1);
+            string sysproConnStr = $"Server={Costing.Properties.Settings.Default.SysproServer};Database={Costing.Properties.Settings.Default.SysproDB};Trusted_Connection=True;TrustServerCertificate=True;";
+
+            using (Microsoft.Data.SqlClient.SqlConnection con = new Microsoft.Data.SqlClient.SqlConnection(sysproConnStr))
+            {
+                await con.OpenAsync();
+
+                // Get the current active period and year
+                using (Microsoft.Data.SqlClient.SqlCommand cmd = new Microsoft.Data.SqlClient.SqlCommand("SELECT Company, GlPeriod, GlYear FROM dbo.GenControl WHERE Company = @comp", con))
+                {
+                    cmd.Parameters.AddWithValue("@comp", company);
+
+                    using (Microsoft.Data.SqlClient.SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            int currentYear = Convert.ToInt32(reader["GlYear"]);
+                            int maxPeriod = Convert.ToInt32(reader["GlPeriod"]);
+
+                            for (int i = 1; i <= maxPeriod; i++)
+                            {
+                                periods.Add(new GLPeriodControl
+                                {
+                                    Company = company,
+                                    GlYear = currentYear,
+                                    GlPeriod = i
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            return periods;
+        }
+
+        public static async Task<List<GLAccount>> GetOverheadAccountsAsync(int year, int period)
+        {
+            var accounts = new List<GLAccount>();
+            string company = Costing.Properties.Settings.Default.SysproDB.Substring(Costing.Properties.Settings.Default.SysproDB.Length - 1, 1);
+            string sysproConnStr = $"Server={Costing.Properties.Settings.Default.SysproServer};Database={Costing.Properties.Settings.Default.SysproDB};Trusted_Connection=True;TrustServerCertificate=True;";
+
+            using (Microsoft.Data.SqlClient.SqlConnection con = new Microsoft.Data.SqlClient.SqlConnection(sysproConnStr))
+            {
+                await con.OpenAsync();
+
+                // Dynamically select the correct Closing Balance column based on the period
+                string balanceColumn = $"dbo.GenHistory.ClosingBalPer{period}";
+
+                string query = $@"
+                    SELECT dbo.GenMaster.Company, 
+                           dbo.GenMaster.GlCode, 
+                           dbo.GenMaster.Description, 
+                           dbo.GenMaster.GlGroup, 
+                           dbo.GenHistory.GlYear, 
+                           {balanceColumn} as Value 
+                    FROM dbo.GenHistory 
+                    INNER JOIN dbo.GenMaster 
+                            ON dbo.GenHistory.Company = dbo.GenMaster.Company 
+                           AND dbo.GenHistory.GlCode = dbo.GenMaster.GlCode 
+                    WHERE dbo.GenMaster.Company = @comp 
+                      AND dbo.GenHistory.GlYear = @year 
+                      AND (dbo.GenMaster.GlGroup = '05' OR dbo.GenMaster.GlGroup = '04') 
+                    ORDER BY dbo.GenMaster.GlGroup";
+
+                using (Microsoft.Data.SqlClient.SqlCommand cmd = new Microsoft.Data.SqlClient.SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@comp", company);
+                    cmd.Parameters.AddWithValue("@year", year);
+
+                    using (Microsoft.Data.SqlClient.SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            accounts.Add(new GLAccount
+                            {
+                                Company = reader["Company"]?.ToString(),
+                                GlCode = reader["GlCode"]?.ToString(),
+                                Description = reader["Description"]?.ToString(),
+                                GlGroup = reader["GlGroup"]?.ToString(),
+                                GlYear = Convert.ToInt32(reader["GlYear"]),
+                                GlPeriod = period, // Inject the selected period for the Annualised math
+                                Value = reader["Value"] != DBNull.Value ? Convert.ToDecimal(reader["Value"]) : 0m
+                            });
+                        }
+                    }
+                }
+            }
+            return accounts;
+        }
+        #endregion
     }
 }

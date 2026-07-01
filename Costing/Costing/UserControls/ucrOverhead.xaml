@@ -1,0 +1,63 @@
+﻿<UserControl x:Class="Costing.UserControls.ucrOverheads"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:viewmodels="clr-namespace:Costing.Viewmodels"
+             mc:Ignorable="d" 
+             d:DesignHeight="700" d:DesignWidth="1000"
+             Background="White">
+
+    <UserControl.DataContext>
+        <viewmodels:OverheadViewModel/>
+    </UserControl.DataContext>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+            <TextBlock Text="Overhead Allocations" FontSize="24" FontWeight="SemiBold" Foreground="#1E293B" VerticalAlignment="Center" Margin="0,0,40,0"/>
+
+            <TextBlock Text="Current GL Period:" Foreground="#64748B" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <ComboBox x:Name="cmbGLPeriod" 
+                      ItemsSource="{Binding OCLPeriods}" 
+                      SelectedItem="{Binding SelectedPeriod}" 
+                      DisplayMemberPath="GlPeriod" 
+                      SelectionChanged="cmbGLPeriod_SelectionChanged" 
+                      Width="80" Height="36" VerticalContentAlignment="Center" Margin="0,0,30,0"/>
+
+            <TextBlock Text="Current Year:" Foreground="#64748B" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <TextBox x:Name="txtGLYear" 
+                     Width="80" Height="36" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" 
+                     IsEnabled="False" FontWeight="Bold" Background="#F1F5F9" Foreground="#334155"/>
+        </StackPanel>
+
+        <DataGrid x:Name="dgOverheads" Grid.Row="1" 
+                  ItemsSource="{Binding OCLGlAccounts}" 
+                  AutoGenerateColumns="False" 
+                  CanUserAddRows="False"
+                  IsReadOnly="True"
+                  HeadersVisibility="Column"
+                  GridLinesVisibility="Horizontal"
+                  BorderBrush="#E2E8F0"
+                  HorizontalGridLinesBrush="#E2E8F0"
+                  Background="White"
+                  RowBackground="White"
+                  AlternatingRowBackground="#F8FAFC">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Company" Binding="{Binding Company}" Width="80" Foreground="#64748B"/>
+                <DataGridTextColumn Header="GL Code" Binding="{Binding GlCode}" Width="120" FontWeight="SemiBold"/>
+                <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="250"/>
+                <DataGridTextColumn Header="Group" Binding="{Binding GlGroup}" Width="80"/>
+
+                <DataGridTextColumn Header="Period Value" Binding="{Binding Value, StringFormat={}{0:N2}}" Width="150" Foreground="#3B82F6"/>
+
+                <DataGridTextColumn Header="Annualised Total" Binding="{Binding Annualised, StringFormat={}{0:N2}}" Width="150" FontWeight="Bold" Foreground="#10B981"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>
