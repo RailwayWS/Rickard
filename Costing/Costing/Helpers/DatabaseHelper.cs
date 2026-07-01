@@ -177,8 +177,9 @@ namespace Costing.Helpers
         {
             using (var db = new CostingDbContext())
             {
+                var calcList = calculatedList.ToList();
 
-                foreach (var calc in calculatedList)
+                foreach (var calc in calcList)
                 {
                     // find parent
                     var existingRecord = await db.CalculatedStaffRecords
@@ -196,7 +197,7 @@ namespace Costing.Helpers
                         existingRecord.Rate = calc.Rate;
                         existingRecord.Total = calc.Total;
 
-                        //Explicitly tell the specific DbSet to delete the old children
+                        // tell the specific DbSet to delete the old children
                         if (existingRecord.DynamicCosts != null && existingRecord.DynamicCosts.Any())
                         {
                             db.CalculatedStaffCosts.RemoveRange(existingRecord.DynamicCosts.ToList());
@@ -217,6 +218,31 @@ namespace Costing.Helpers
                         // INSERT
                         db.CalculatedStaffRecords.Add(calc);
                     }
+                }
+
+                var currentKeys = calcList
+                    .Select(c => (c.Code, c.WorkCentre))
+                    .ToHashSet();
+
+                var allDbRecords = await db.CalculatedStaffRecords
+                    .Include(c => c.DynamicCosts)
+                    .ToListAsync();
+
+                var staleRecords = allDbRecords
+                    .Where(r => !currentKeys.Contains((r.Code, r.WorkCentre)))
+                    .ToList();
+
+                if (staleRecords.Any())
+                {
+                    var staleChildCosts = staleRecords
+                        .Where(r => r.DynamicCosts != null)
+                        .SelectMany(r => r.DynamicCosts)
+                        .ToList();
+
+                    if (staleChildCosts.Any())
+                        db.CalculatedStaffCosts.RemoveRange(staleChildCosts);
+
+                    db.CalculatedStaffRecords.RemoveRange(staleRecords);
                 }
 
                 await db.SaveChangesAsync();
