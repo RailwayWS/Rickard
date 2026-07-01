@@ -100,6 +100,7 @@ namespace Costing.Windows
         public void ShowSettingsView()
         {
             this.MainFrame.Content = new Costing.UserControls.SettingsView();
+            btSettings.IsChecked = true;
         }
     }
 }

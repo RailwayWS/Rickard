@@ -87,11 +87,30 @@ namespace Costing.UserControls
             if (dialog.ShowDialog() == true) vmSettings.ImportPathCosting = dialog.FileName;
         }
 
-        private void btnSaveSettings_Click(object sender, RoutedEventArgs e)
+        private async void btnSaveSettings_Click(object sender, RoutedEventArgs e)
         {
             if (vmSettings == null) return;
+
+            Mouse.OverrideCursor = Cursors.Wait;
+
             try
             {
+                bool isCostingValid = await TestDatabaseConnectionAsync(vmSettings.CostingServer, vmSettings.CostingDB);
+                if (!isCostingValid)
+                {
+                    MessageBox.Show("Could not connect to the Costing Database with these settings.\n\nPlease verify the Server Name and Database Name and try again.",
+                                    "Connection Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return; // Abort the save process
+                }
+
+                bool isSysproValid = await TestDatabaseConnectionAsync(vmSettings.SysproServer, vmSettings.SysproDB);
+                if (!isSysproValid)
+                {
+                    MessageBox.Show("Could not connect to the SYSPRO Database with these settings.\n\nPlease verify the Server Name and Database Name and try again.",
+                                    "Connection Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return; // Abort the save process
+                }
+
                 Costing.Properties.Settings.Default.CostingServer = vmSettings.CostingServer;
                 Costing.Properties.Settings.Default.CostingDB = vmSettings.CostingDB;
 
@@ -104,13 +123,38 @@ namespace Costing.UserControls
 
                 Costing.Properties.Settings.Default.Save();
 
-                MessageBox.Show("Application configurations updated successfully!");
+                MessageBox.Show("Application configurations updated and connections verified successfully!",
+                                "Settings Saved", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Configuration commit aborted: \n{ex.Message}");
+                MessageBox.Show($"Configuration commit aborted: \n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
             }
         }
+
+        private async Task<bool> TestDatabaseConnectionAsync(string server, string database)
+        {
+            string testConnString = $"Server={server};Database={database};Trusted_Connection=True;TrustServerCertificate=True;Connection Timeout=3;";
+
+            using (var testConn = new Microsoft.Data.SqlClient.SqlConnection(testConnString))
+            {
+                try
+                {
+                    await testConn.OpenAsync();
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+
+
         #endregion
 
         #region Tab 2: Users Logic

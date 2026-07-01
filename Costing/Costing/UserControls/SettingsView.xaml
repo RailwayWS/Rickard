@@ -220,16 +220,13 @@
                             <DataGridTemplateColumn Header="Type" Width="140">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Type}" VerticalAlignment="Center" Padding="4,0"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                                <DataGridTemplateColumn.CellEditingTemplate>
-                                    <DataTemplate>
                                         <ComboBox SelectedItem="{Binding Type, UpdateSourceTrigger=PropertyChanged}"
                                                   ItemsSource="{StaticResource WorkCentreTypes}"
-                                                  VerticalContentAlignment="Center"/>
+                                                  VerticalContentAlignment="Center"
+                                                  Margin="2"
+                                                  BorderBrush="#E2E8F0"/>
                                     </DataTemplate>
-                                </DataGridTemplateColumn.CellEditingTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
 
                             <DataGridTextColumn Header="Staff Count" Binding="{Binding Staff}" Width="100" IsReadOnly="True"/>
