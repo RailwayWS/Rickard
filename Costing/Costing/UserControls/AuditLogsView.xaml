@@ -13,38 +13,6 @@
         <vm:AuditLogsViewModel/>
     </UserControl.DataContext>
 
-    <UserControl.Resources>
-        <Style x:Key="ModernHeaderButton" TargetType="Button">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="6" 
-                                Padding="10,0">
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.15" Direction="270" Color="Black"/>
-                            </Border.Effect>
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Opacity" Value="0.85"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Opacity" Value="0.7"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.4"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </UserControl.Resources>
 
     <Grid Margin="20">
         <Grid.RowDefinitions>
@@ -53,7 +21,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Row 0: Header Area -->
+        <!--#region Header: title, snapshot picker, delete/export actions -->
         <Grid Grid.Row="0" Margin="0,0,0,20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -70,12 +38,12 @@
 
             <ComboBox x:Name="cmbSnapshots" Grid.Column="2" Height="36" VerticalContentAlignment="Center" Padding="10,0" SelectionChanged="cmbSnapshots_SelectionChanged"/>
 
-            <!-- Action Buttons -->
-            <Button x:Name="btnDelete" Grid.Column="4" Content="Delete Snapshot" Click="btnDelete_Click" Style="{StaticResource ModernHeaderButton}" Background="#EF4444" Width="140" Height="36"/>
-            <Button x:Name="btnExport" Grid.Column="6" Content="Export to Excel" Click="btnExport_Click" Style="{StaticResource ModernHeaderButton}" Background="#10B981" Width="140" Height="36"/>
+            <Button x:Name="btnDelete" Grid.Column="4" Content="Delete Snapshot" Click="btnDelete_Click" Style="{StaticResource ModernHeaderButton}" Background="{StaticResource Brush.Danger}" Width="140" Height="36"/>
+            <Button x:Name="btnExport" Grid.Column="6" Content="Export to Excel" Click="btnExport_Click" Style="{StaticResource ModernHeaderButton}" Background="{StaticResource Brush.Success}" Width="140" Height="36"/>
         </Grid>
+        <!--#endregion-->
 
-        <!-- Row 1: System Rates Info Bar -->
+        <!--#region Info bar: rates recorded for the selected snapshot -->
         <Border Grid.Row="1" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="6" Padding="15,10" Margin="0,0,0,15">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Snapshot Calculation Rates:" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,20,0" VerticalAlignment="Center"/>
@@ -91,21 +59,14 @@
                 </TextBlock>
             </StackPanel>
         </Border>
+        <!--#endregion-->
 
-        <!-- Row 2: Read-Only Data Grid -->
-        <DataGrid x:Name="dgAuditLogs" Grid.Row="2" 
-                  ItemsSource="{Binding OCAuditLogs}" 
-                  AutoGenerateColumns="False" 
-                  CanUserAddRows="False"
+        <!--#region Data grid: read-only rows for the selected snapshot -->
+        <DataGrid x:Name="dgAuditLogs" Grid.Row="2"
+                  Style="{StaticResource StandardDataGridStyle}"
+                  ItemsSource="{Binding OCAuditLogs}"
                   CanUserDeleteRows="False"
-                  IsReadOnly="True"
-                  HeadersVisibility="Column"
-                  GridLinesVisibility="Horizontal"
-                  BorderBrush="#E2E8F0"
-                  HorizontalGridLinesBrush="#E2E8F0"
-                  Background="White"
-                  RowBackground="White"
-                  AlternatingRowBackground="#F8FAFC">
+                  IsReadOnly="True">
 
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Code" Binding="{Binding Code}" Width="80" FontWeight="SemiBold" Foreground="#475569"/>
@@ -117,5 +78,6 @@
                 <DataGridTextColumn Header="SDL" Binding="{Binding SDL, StringFormat={}{0:N2}}" Width="120" Foreground="#2563EB"/>
             </DataGrid.Columns>
         </DataGrid>
+        <!--#endregion-->
     </Grid>
 </UserControl>

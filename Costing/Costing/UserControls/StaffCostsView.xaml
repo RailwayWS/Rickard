@@ -12,7 +12,9 @@
         <vm:StaffCostsViewModel/>
     </UserControl.DataContext>
 
+
     <UserControl.Resources>
+        <!--#region Base category chip checkboxes -->
         <Style x:Key="ChipCheckBoxStyle" TargetType="CheckBox">
             <Setter Property="Margin" Value="0,0,8,8"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -51,28 +53,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
-        <Style TargetType="TextBox">
-            <Setter Property="Background" Value="#1E293B"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#334155"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="8,4"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" Margin="10,0,10,0">
-                            <ScrollViewer x:Name="PART_ContentHost" Margin="10,0,10,0" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter Property="BorderBrush" Value="#3B82F6"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <!--#endregion-->
     </UserControl.Resources>
 
     <Grid Margin="20">
@@ -81,6 +62,7 @@
                     Background="Transparent" BorderThickness="0" Padding="0" HorizontalAlignment="Left" Foreground="#94A3B8" Cursor="Hand"/>
             <TextBlock Text="Staff Costs" FontSize="24" FontWeight="Bold" Foreground="White" Margin="0,0,0,24"/>
 
+            <!--#region View mode: category picker + read-only details -->
             <StackPanel x:Name="ViewPanel" Visibility="Visible">
 
                 <TextBlock Text="Select Category" Foreground="#94A3B8" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,6"/>
@@ -132,12 +114,14 @@
                     <Button Grid.Column="4" Content="Delete" Click="btnDelete_Click" Background="#450a0a" BorderBrush="#991b1b" BorderThickness="1" Foreground="#f87171" Height="32" Cursor="Hand"/>
                 </Grid>
             </StackPanel>
+            <!--#endregion-->
 
+            <!--#region Add/Edit form overlay -->
             <StackPanel x:Name="FormPanel" Visibility="Collapsed" Background="#1E293B" Margin="0,10">
                 <TextBlock x:Name="txtFormTitle" Text="Edit Category" Foreground="White" FontSize="16" FontWeight="Bold" Margin="10,10,0,10"/>
 
                 <TextBlock Text="Category Name" Foreground="#94A3B8" FontSize="12" FontWeight="SemiBold" Margin="10,0,0,5"/>
-                <TextBox x:Name="txtFormCategory" Height="36" Margin="0,0,0,16"/>
+                <TextBox x:Name="txtFormCategory" Style="{StaticResource DarkTextBoxStyle}" Height="36" Margin="0,0,0,16"/>
 
                 <TextBlock Text="Cost Type" Foreground="#94A3B8" FontSize="12" FontWeight="SemiBold" Margin="10,0,0,6"/>
                 <ComboBox x:Name="cmbFormType" ItemsSource="{Binding TypesList}" Height="36" Margin="10,0,10,16" SelectionChanged="cmbFormType_SelectionChanged" VerticalContentAlignment="Center"/>
@@ -146,11 +130,11 @@
                 <WrapPanel x:Name="pnlBaseCategories" Orientation="Horizontal" Margin="0,0,0,16" />
 
                 <TextBlock Text="Cost Value" Foreground="#94A3B8" FontSize="12" FontWeight="SemiBold" Margin="10,0,0,6"/>
-                <TextBox x:Name="txtFormValue" Height="36" Margin="0,0,0,16"/>
+                <TextBox x:Name="txtFormValue" Style="{StaticResource DarkTextBoxStyle}" Height="36" Margin="0,0,0,16"/>
 
                 <TextBlock Text="Max Annual Limit" Foreground="#94A3B8" FontSize="12" FontWeight="SemiBold" Margin="10,0,0,2"/>
                 <TextBlock Text="Leave blank if there is no cap." FontSize="11" Foreground="#64748B" Margin="10,0,0,6"/>
-                <TextBox x:Name="txtFormMaxLimit" Height="36" Margin="0,0,0,24"/>
+                <TextBox x:Name="txtFormMaxLimit" Style="{StaticResource DarkTextBoxStyle}" Height="36" Margin="0,0,0,24"/>
 
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -163,6 +147,7 @@
                     <Button Grid.Column="2" Content="Confirm" Click="btnConfirmForm_Click" Background="#3B82F6" BorderThickness="0" Foreground="White" Height="36" FontWeight="Bold" Cursor="Hand"/>
                 </Grid>
             </StackPanel>
+            <!--#endregion-->
 
         </StackPanel>
     </Grid>

@@ -3,7 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="#F8FAFC">
 
+
     <UserControl.Resources>
+        <!--#region Tab -->
         <Style TargetType="TabControl">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -36,91 +38,19 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <!--#endregion-->
 
-        <Style x:Key="ModernHeaderButton" TargetType="Button">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="6" 
-                                Padding="10,0">
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.15" Direction="270" Color="Black"/>
-                            </Border.Effect>
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Opacity" Value="0.85"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Opacity" Value="0.7"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.4"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="SecondaryButton" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#64748B"/>
-            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+        <!--#region Settings card -->
+        <Style x:Key="SettingsCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Brush.CardBorder}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="{TemplateBinding BorderThickness}" 
-                                CornerRadius="4">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#F1F5F9"/>
-                                <Setter Property="Foreground" Value="#334155"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="20"/>
         </Style>
+        <!--#endregion-->
 
-        <Style x:Key="GridActionDeleteBtnStyle" TargetType="Button">
-            <Setter Property="Background" Value="#FEF2F2"/>
-            <Setter Property="Foreground" Value="#EF4444"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="8" 
-                                Padding="12,4"
-                                Margin="0,4,0,4">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#EF4444"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
+        <!-- Work Centre "Type" combo options -->
         <x:Array x:Key="WorkCentreTypes" Type="sys:String"
                  xmlns:sys="clr-namespace:System;assembly=mscorlib">
             <sys:String>Man Hours</sys:String>
@@ -138,11 +68,12 @@
 
         <TabControl Grid.Row="1" x:Name="tbTabcontrol" SelectionChanged="tbTabcontrol_SelectionChanged" Background="Transparent" BorderThickness="0">
 
+            <!--#region General tab: DB connection + import path settings -->
             <TabItem x:Name="tiServerSettings" Header="General">
                 <Grid>
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,10,0,60">
                         <StackPanel>
-                            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,0,0,20">
+                            <Border Style="{StaticResource SettingsCardStyle}" Margin="0,0,0,20">
                                 <StackPanel>
                                     <TextBlock Text="Costing Database Settings" FontSize="18" FontWeight="SemiBold" Foreground="#0F172A" Margin="0,0,0,5"/>
                                     <TextBlock Text="Configure the local database connection." FontSize="13" Foreground="#64748B" Margin="0,0,0,15"/>
@@ -157,7 +88,7 @@
                                 </StackPanel>
                             </Border>
 
-                            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="20">
+                            <Border Style="{StaticResource SettingsCardStyle}">
                                 <StackPanel>
                                     <TextBlock Text="SYSPRO Connection Settings" FontSize="18" FontWeight="SemiBold" Foreground="#0F172A" Margin="0,0,0,5"/>
                                     <TextBlock Text="Configure the source data connection parameters for pulling ERP tables." FontSize="13" Foreground="#64748B" Margin="0,0,0,15"/>
@@ -172,7 +103,7 @@
                                 </StackPanel>
                             </Border>
 
-                            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,20,0,0">
+                            <Border Style="{StaticResource SettingsCardStyle}" Margin="0,20,0,0">
                                 <StackPanel>
                                     <TextBlock Text="Imports" FontSize="18" FontWeight="SemiBold" Foreground="#0F172A" Margin="0,0,0,5"/>
                                     <TextBlock Text="Set default file paths." FontSize="13" Foreground="#64748B" Margin="0,0,0,15"/>
@@ -205,10 +136,12 @@
                         </StackPanel>
                     </ScrollViewer>
 
-                    <Button x:Name="btnSaveSettings" Content="Save Configurations" Click="btnSaveSettings_Click" Style="{StaticResource ModernHeaderButton}" Width="180" Height="40" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#3B82F6"/>
+                    <Button x:Name="btnSaveSettings" Content="Save Configurations" Click="btnSaveSettings_Click" Style="{StaticResource ModernHeaderButton}" Width="180" Height="40" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="{StaticResource Brush.Primary}"/>
                 </Grid>
             </TabItem>
+            <!--#endregion-->
 
+            <!--#region System Users tab: user grid + add-user overlay -->
             <TabItem x:Name="tiUsers" Header="System Users">
                 <Grid Margin="0,10,0,0">
                     <Grid.RowDefinitions>
@@ -217,9 +150,9 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Button Grid.Row="0" x:Name="btnShowAddUserForm" Content="+ Add New User" Click="btnShowAddUserForm_Click" Style="{StaticResource ModernHeaderButton}" Width="140" Height="35" HorizontalAlignment="Left" Margin="0,0,0,10" Background="#3B82F6"/>
+                    <Button Grid.Row="0" x:Name="btnShowAddUserForm" Content="+ Add New User" Click="btnShowAddUserForm_Click" Style="{StaticResource ModernHeaderButton}" Width="140" Height="35" HorizontalAlignment="Left" Margin="0,0,0,10" Background="{StaticResource Brush.Primary}"/>
 
-                    <DataGrid Grid.Row="1" x:Name="dgUsers" ItemsSource="{Binding OclUsers}" AutoGenerateColumns="False" CanUserAddRows="False" Background="White" BorderBrush="#E2E8F0" Margin="0,0,0,15">
+                    <DataGrid Grid.Row="1" x:Name="dgUsers" Style="{StaticResource StandardDataGridStyle}" ItemsSource="{Binding OclUsers}" Margin="0,0,0,15">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="UserName" Binding="{Binding UserName}" Width="*"/>
                             <DataGridTextColumn Header="Password" Binding="{Binding Password}" Width="*"/>
@@ -235,7 +168,7 @@
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <Button Grid.Row="2" x:Name="btnSaveUsers" Content="Save Users" Click="btnSaveUsers_Click" Style="{StaticResource ModernHeaderButton}" Width="180" Height="40" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#10B981"/>
+                    <Button Grid.Row="2" x:Name="btnSaveUsers" Content="Save Users" Click="btnSaveUsers_Click" Style="{StaticResource ModernHeaderButton}" Width="180" Height="40" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="{StaticResource Brush.Success}"/>
 
                     <Border x:Name="pnlAddUser" Grid.Row="0" Grid.RowSpan="3" Visibility="Collapsed" Background="#1E293B" CornerRadius="8" Padding="20" HorizontalAlignment="Center" VerticalAlignment="Center" Width="320">
                         <StackPanel>
@@ -258,13 +191,15 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <Button Grid.Column="0" Content="Cancel" Click="btnCancelAddUser_Click" Style="{StaticResource SecondaryButton}" Height="36"/>
-                                <Button Grid.Column="2" Content="Confirm" Click="btnConfirmAddUser_Click" Style="{StaticResource ModernHeaderButton}" Background="#3B82F6" Height="36"/>
+                                <Button Grid.Column="2" Content="Confirm" Click="btnConfirmAddUser_Click" Style="{StaticResource ModernHeaderButton}" Background="{StaticResource Brush.Primary}" Height="36"/>
                             </Grid>
                         </StackPanel>
                     </Border>
                 </Grid>
             </TabItem>
+            <!--#endregion-->
 
+            <!--#region Work Centres tab: SYSPRO sync + work centre grid -->
             <TabItem x:Name="tiWorkCentres" Header="Work Centres">
                 <Grid Margin="0,10,0,0">
                     <Grid.RowDefinitions>
@@ -273,9 +208,9 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Button Grid.Row="0" x:Name="btnSyncWorkCentres" Content="Sync with SYSPRO" Click="btnSyncWorkCentres_Click" Style="{StaticResource ModernHeaderButton}" Width="180" Height="40" HorizontalAlignment="Left" Margin="0,0,0,10" Background="#F59E0B"/>
+                    <Button Grid.Row="0" x:Name="btnSyncWorkCentres" Content="Sync with SYSPRO" Click="btnSyncWorkCentres_Click" Style="{StaticResource ModernHeaderButton}" Width="180" Height="40" HorizontalAlignment="Left" Margin="0,0,0,10" Background="{StaticResource Brush.Warning}"/>
 
-                    <DataGrid Grid.Row="1" x:Name="dgWorkCentres" ItemsSource="{Binding OCWorkCentres}" AutoGenerateColumns="False" CanUserAddRows="False" Background="White" BorderBrush="#E2E8F0" Margin="0,0,0,15">
+                    <DataGrid Grid.Row="1" x:Name="dgWorkCentres" Style="{StaticResource StandardDataGridStyle}" ItemsSource="{Binding OCWorkCentres}" Margin="0,0,0,15">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="WC Code" Binding="{Binding WcCode}" Width="80" IsReadOnly="True" Foreground="#64748B"/>
                             <DataGridTextColumn Header="WC Description" Binding="{Binding WcDescription}" Width="*" IsReadOnly="True"/>
@@ -301,9 +236,10 @@
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <Button Grid.Row="2" x:Name="btnSaveWorkCentres" Content="Save Work Centres" Click="btnSaveWorkCentres_Click" Style="{StaticResource ModernHeaderButton}" Width="180" Height="40" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#10B981"/>
+                    <Button Grid.Row="2" x:Name="btnSaveWorkCentres" Content="Save Work Centres" Click="btnSaveWorkCentres_Click" Style="{StaticResource ModernHeaderButton}" Width="180" Height="40" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="{StaticResource Brush.Success}"/>
                 </Grid>
             </TabItem>
+            <!--#endregion-->
 
         </TabControl>
     </Grid>

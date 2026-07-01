@@ -4,35 +4,6 @@
              Background="#F8FAFC">
 
 
-    <UserControl.Resources>
-        <Style x:Key="GridActionBtnStyle" TargetType="Button">
-            <Setter Property="Background" Value="#EFF6FF"/>
-            <Setter Property="Foreground" Value="#2563EB"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Padding" Value="12,6"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="8" 
-                                Padding="12,4"
-                                Margin="0,4,0,4">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#3B82F6"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </UserControl.Resources>
-
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -46,19 +17,13 @@
                    Foreground="#1E293B"
                    Margin="0,0,0,20"/>
 
+        <!--#region Data grid -->
         <DataGrid Grid.Row="1"
                   x:Name="dgAllocations"
-                  AutoGenerateColumns="False"
+                  Style="{StaticResource StandardDataGridStyle}"
                   ItemsSource="{Binding OCAllocations}"
-                  CanUserAddRows="False"
                   IsReadOnly="True"
-                  Background="White"
-                  BorderBrush="#E2E8F0"
                   BorderThickness="1"
-                  RowBackground="White"
-                  AlternatingRowBackground="#F8FAFC"
-                  GridLinesVisibility="Horizontal"
-                  HorizontalGridLinesBrush="#E2E8F0"
                   SelectionMode="Single">
 
             <DataGrid.Columns>
@@ -126,6 +91,7 @@
 
             </DataGrid.Columns>
         </DataGrid>
+        <!--#endregion-->
 
         <TextBlock Grid.Row="2"
                    Text="Click Assign to set work centre allocations for an employee."

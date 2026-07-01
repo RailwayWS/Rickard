@@ -12,45 +12,13 @@
         <vm:StaffViewModel/>
     </UserControl.DataContext>
 
-    <UserControl.Resources>
-        <Style x:Key="ModernHeaderButton" TargetType="Button">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="6" 
-                                Padding="10,0">
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.15" Direction="270" Color="Black"/>
-                            </Border.Effect>
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Opacity" Value="0.85"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Opacity" Value="0.7"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.4"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </UserControl.Resources>
-
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <!--#region Header: title + Import/Save actions -->
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
             <TextBlock Text="Staff Management" FontSize="24" FontWeight="SemiBold" Foreground="#1E293B" VerticalAlignment="Center"/>
 
@@ -58,26 +26,21 @@
                     Content="Import CSV File" 
                     Click="btnImport_Click" 
                     Style="{StaticResource ModernHeaderButton}"
-                    Background="#3B82F6" 
+                    Background="{StaticResource Brush.Primary}" 
                     Margin="20,0,0,0" Width="140" Height="35"/>
 
             <Button Content="Save to Database" 
                     Click="btnSaveToDb_Click" 
                     Style="{StaticResource ModernHeaderButton}"
-                    Background="#10B981" 
+                    Background="{StaticResource Brush.Success}" 
                     Margin="15,0,0,0" Width="140" Height="35"/>
         </StackPanel>
+        <!--#endregion-->
 
-        <DataGrid Grid.Row="1" 
-                  ItemsSource="{Binding OCStaff}" 
-                  AutoGenerateColumns="False" 
-                  CanUserAddRows="False"
-                  HeadersVisibility="Column"
-                  GridLinesVisibility="Horizontal"
-                  BorderBrush="#E2E8F0"
-                  Background="White"
-                  RowBackground="White"
-                  AlternatingRowBackground="#F8FAFC">
+        <!--#region Data grid: imported staff list -->
+        <DataGrid Grid.Row="1"
+                  Style="{StaticResource StandardDataGridStyle}"
+                  ItemsSource="{Binding OCStaff}">
 
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Code" Binding="{Binding Code}" Width="100"/>
@@ -87,5 +50,6 @@
                 <DataGridTextColumn Header="Rate" Binding="{Binding Rate}" Width="100"/>
             </DataGrid.Columns>
         </DataGrid>
+        <!--#endregion-->
     </Grid>
 </UserControl>

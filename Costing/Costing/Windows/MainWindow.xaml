@@ -76,6 +76,7 @@
 
     <DockPanel>
 
+        <!--#region Sidebar: nav menu + logout -->
         <Grid DockPanel.Dock="Left" Width="350" Background="#1E293B">
             <Grid.Effect>
                 <DropShadowEffect BlurRadius="15" ShadowDepth="3" Opacity="0.3"/>
@@ -109,6 +110,7 @@
 
             <ContentControl x:Name="SecondarySidebarFrame" Visibility="Collapsed"/>
         </Grid>
+        <!--#endregion-->
 
         <ContentControl x:Name="MainFrame" Background="#F8FAFC"/>
 

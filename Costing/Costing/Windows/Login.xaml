@@ -16,49 +16,6 @@
         <vm:LoginViewModel/>
     </Window.DataContext>
 
-    <Window.Resources>
-        <Style x:Key="PrimaryButton" TargetType="Button">
-            <Setter Property="Background" Value="#3B82F6"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="6">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#2563EB"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-            <Setter Property="Background" Value="#F1F5F9"/>
-            <Setter Property="Foreground" Value="#475569"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="6">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#E2E8F0"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Resources>
 
     <Border Background="White" CornerRadius="12" Margin="20">
         <Border.Effect>
@@ -71,6 +28,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
+            <!--#region Header banner -->
             <Border MouseLeftButtonDown="Header_MouseLeftButtonDown" Grid.Row="0" Background="#1E293B" CornerRadius="12,12,0,0">
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="COSTING" Foreground="White" FontSize="22" FontWeight="Bold" 
@@ -79,8 +37,9 @@
                                HorizontalAlignment="Center" Margin="0,8,0,0"/>
                 </StackPanel>
             </Border>
+            <!--#endregion-->
 
-
+            <!--#region Login form -->
             <StackPanel Grid.Row="1" Margin="30,25,30,20">
 
                 <TextBlock Text="Username" Foreground="#64748B" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,5"/>
@@ -105,13 +64,14 @@
                     </Grid.ColumnDefinitions>
 
                     <Button Grid.Column="0" x:Name="btcancel" Content="Cancel" Click="btcancel_Click" 
-                            Style="{StaticResource SecondaryButton}" Height="42"/>
+                            Style="{StaticResource SecondaryButton}" Height="42" FontSize="14"/>
 
                     <Button Grid.Column="2" x:Name="btOK" Content="Login" Click="btOK_Click" 
                             Style="{StaticResource PrimaryButton}" Height="42" IsDefault="True"/>
                 </Grid>
 
             </StackPanel>
+            <!--#endregion-->
         </Grid>
     </Border>
 </Window>

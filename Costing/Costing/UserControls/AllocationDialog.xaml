@@ -16,6 +16,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
+        <!--#region Header: employee name + instructions -->
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,4">
             <TextBlock Text="Employee: " FontSize="18" FontWeight="Bold" Foreground="#1E293B"/>
             <TextBlock x:Name="tbEmployeeName" FontSize="18" FontWeight="Bold" Foreground="#3B82F6"/>
@@ -27,7 +28,9 @@
                    Foreground="#64748B"
                    FontSize="12"
                    Margin="0,0,0,14"/>
+        <!--#endregion-->
 
+        <!--#region Work centre / allocation rows -->
         <Grid Grid.Row="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -90,7 +93,9 @@
                 </ItemsControl>
             </ScrollViewer>
         </Grid>
+        <!--#endregion-->
 
+        <!--#region Running total + validation warning -->
         <Border Grid.Row="3"
                 Background="#F1F5F9"
                 BorderBrush="#E2E8F0"
@@ -110,7 +115,9 @@
                 </StackPanel>
             </Grid>
         </Border>
+        <!--#endregion-->
 
+        <!--#region Cancel / Save actions -->
         <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Content="Cancel"
                     Width="90" Height="36"
@@ -131,5 +138,6 @@
                     Cursor="Hand"
                     Click="BtnSave_Click"/>
         </StackPanel>
+        <!--#endregion-->
     </Grid>
 </Window>

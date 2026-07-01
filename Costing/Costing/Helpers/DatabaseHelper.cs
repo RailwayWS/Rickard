@@ -27,7 +27,7 @@ namespace Costing.Helpers
         {
             using (var db = new CostingDbContext())
             {
-                // 1. UPSERT LOGIC (Add or Update existing)
+                // Upsert
                 foreach (var emp in staffList)
                 {
                     var existingEmployee = await db.Staff.FirstOrDefaultAsync(e => e.Code == emp.Code);
